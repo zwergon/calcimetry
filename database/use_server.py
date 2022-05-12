@@ -3,7 +3,10 @@ import random
 
 import requests
 
+# L'adresse du serveur d'image JPEG
 SERVER_URL = 'http://imgserver.10.68.0.250.nip.io'
+
+# Le répertoire parent sur ce serveur ou chercher des images.
 ROOT_PATH ='/data/andra'
 
 
