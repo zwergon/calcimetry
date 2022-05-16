@@ -1,0 +1,15 @@
+name: ai.calcimetry
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - matplotlib
+  - scipy
+  - pandas
+  - scikit-image
+  - pip
+    # notebooks:
+  - jupyterlab
+  - voila
+  - rise
+

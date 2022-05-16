@@ -3,6 +3,9 @@ import random
 
 import requests
 
+# No proxy please
+os.environ['no_proxy']='10.68.0.250.nip.io'
+
 # L'adresse du serveur d'image JPEG
 SERVER_URL = 'http://imgserver.10.68.0.250.nip.io'
 
