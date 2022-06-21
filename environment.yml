@@ -12,4 +12,7 @@ dependencies:
   - jupyterlab
   - voila
   - rise
+  - pip:
+      - opencv-python
+      - piq
 

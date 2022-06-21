@@ -39,7 +39,7 @@ def get_list(img_path):
     return files
 
 
-def get_file(filename):
+def get_file(filename, quiet=False):
     """
     Retour une Image (PIL) lue à partir d'un fichier jpeg de la liste
     :param filename: le chemin complet vers le fichier jpeg comme retournée par get_list
@@ -53,7 +53,8 @@ def get_file(filename):
     }
     response = requests.get(url, headers=header)
     code = response.status_code
-    print("Status Code", code)
+    if quiet == False:
+        print("Status Code", code)
     if code == 200:
         return Image.open(io.BytesIO(response.content))
 
