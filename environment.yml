@@ -12,6 +12,7 @@ dependencies:
   - pip
     # notebooks:
   - jupyterlab
+  - ipywidgets
   - voila
   - rise
   - pip:
