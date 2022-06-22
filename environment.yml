@@ -7,6 +7,8 @@ dependencies:
   - scipy
   - pandas
   - scikit-image
+  - scikit-learn
+  - seaborn
   - pip
     # notebooks:
   - jupyterlab
