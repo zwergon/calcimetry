@@ -2,10 +2,11 @@ name: ai.calcimetry
 channels:
   - conda-forge
 dependencies:
-  - python
+  - python>=3.8
   - matplotlib
   - scipy
   - pandas
+  - xlrd
   - scikit-image
   - scikit-learn
   - seaborn
