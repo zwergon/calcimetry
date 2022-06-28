@@ -19,4 +19,5 @@ dependencies:
   - pip:
       - opencv-python
       - piq
+      - flake8
 
