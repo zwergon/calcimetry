@@ -16,4 +16,6 @@ cd path/to/clickclick
 python image_clicks.py -f ~/data/csvs/REP3/PEP1001/Photos/imgs.csv -o ~/data/csvs/REP3/PEP1001/Photos/imgs2.csv
 ```
 
+5. Import csv data files from the local machine on to the MongDB:
+`import_image_mongodb.py`
 
