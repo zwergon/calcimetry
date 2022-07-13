@@ -17,12 +17,3 @@ python image_clicks.py -f ~/data/csvs/REP3/PEP1001/Photos/imgs.csv -o ~/data/csv
 ```
 
 
-
-
-# To Do
-
-1. Merge the indivdual csv files of the calcimetry with the drill location
-file (`Prog2` or `Prog2bis` in `util/`) - partial progress in
-`notebooks/get_set_from_df.ipynb`
-2. Work out how to launch `Prog3` or `Prog3bis` from util using the server and
-not duplicating what has been done already.

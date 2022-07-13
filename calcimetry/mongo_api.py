@@ -4,8 +4,9 @@ class MongoInfo:
 
     UNKNOWN_ID = int(-1)
 
-    HOST = 'localhost'
-    PORT = 27017
+    # client = MongoClient('mongodb://irlinv-dvbacr16:7017')
+    HOST = 'irlinv-dvbacr16'
+    PORT = 7017
 
     def __init__(self,
                  host=HOST,

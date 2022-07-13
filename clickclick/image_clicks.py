@@ -47,7 +47,11 @@ class ScrolledCanvas(Frame):
 		canv.pack(side=LEFT, expand=YES, fill=BOTH)
 		global imageName
 		print(imageName)
-		imm = server.get_file(imageName)
+		try:
+			imm = server.get_file(imageName)
+		except Exception as e:
+			print(f'Error getting image {imageName}\n' + e)
+			imm=Image.open('sadness.png')
 		# imm=Image.open(imageName)
 		width,height=imm.size
 		canv.config(scrollregion=(0,0,width,height))

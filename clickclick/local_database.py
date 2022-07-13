@@ -54,6 +54,6 @@ if __name__ == "__main__":
     # add image information csv file next to the calcimetry csv file
     cc.calcimetry.dataframe2csvs(df, dirName)
 
-    # merge the two data sets: calcimetry and image informationgit ad
+    # merge the two data sets: calcimetry and image information
 
     # run the interface to click on images from the directory of
