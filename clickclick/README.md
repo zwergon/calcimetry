@@ -19,3 +19,13 @@ python image_clicks.py -f ~/data/csvs/REP3/PEP1001/Photos/imgs.csv -o ~/data/csv
 5. Import csv data files from the local machine on to the MongDB:
 `import_image_mongodb.py`
 
+6. Import the calcimetry measurments from the local machine tot the MongDB:
+`import_calcimetry_mongodb.py` tries to import the measurement data to the
+measurement database for two cases, the measurement file exists, in which
+case it is simply imported, or the measurement file does not exist, in which
+ case it is created. This second step assumes that the `excell2csv.py`
+ script has already been launched, and for each Excel file there already
+ exists a `csv` equivalent.
+
+
+

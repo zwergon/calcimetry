@@ -233,9 +233,10 @@ def excell2csv(filelocs):
 
     dfcolms = []
     for file in excell_files:
+        print(file)
         df = pd.read_excel(file)
         sf = df.iloc[:, 0]
-        if 'Cote' in list(sf):
+        if 'Cote' in list(sf) or 'Cote (m)' in list(sf):
             dfcolms.append(len(df.columns))
 
             if len(df.columns) < 5:
@@ -251,7 +252,7 @@ def excell2csv(filelocs):
             dfe.columns = ['Cote', 'à 1 minute', 'à 4 minutes', 'à 19 minutes',
                            '% CaCO3', '% Dolomie', '% insolubles']
 
-        if 'Cote toit' in list(sf):
+        elif 'Cote toit' in list(sf):
             dfcolms.append(len(df.columns))
 
             if len(df.columns) < 5:
@@ -264,10 +265,16 @@ def excell2csv(filelocs):
                     df = df.drop([colname], axis=1)
 
             dfe = df.dropna().copy()
-            df.drop(df.columns[1], axis=1)
+            dfe.drop(df.columns[1], axis=1)
             dfe.columns = ['Cote', 'à 1 minute', 'à 3 minutes', 'à 15 minutes',
                            '% CaCO3', '% Dolomie', '% insolubles']
+
+        else:
+            dfe = pd.DataFrame(columns=['Cote', 'à 1 minute', 'à 3 minutes',
+                                        'à 15 minutes', '% CaCO3', '% Dolomie', '% insolubles'])
 
         csv_file = file.split('.xls')[0] + '.csv'
         print(csv_file)
         dfe.to_csv(csv_file)
+        del dfe
+        del df

@@ -43,3 +43,9 @@ class MongoAPI:
 
     def write_img_many(self, docs):
         self.db['images'].insert_many(docs)
+
+    def write_mesu_one(self, doc):
+        self.db['measurements'].insert_one(doc)
+
+    def write_mesu_many(self, docs):
+        self.db['measurements'].insert_many(docs)
