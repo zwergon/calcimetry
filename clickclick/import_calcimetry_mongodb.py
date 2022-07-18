@@ -46,10 +46,8 @@ if __name__ == "__main__":
                     partialdrillname = f'.*{drillname}.*'
                     doc = mongo_api.db['images'].find_one({'DrillName': {'$regex' : partialdrillname}})
                     realdrillname = doc['DrillName']
-                    print(realdrillname)
 
-                    if mongo_api.db['measurements'].find_one({'DrillName':
-                                                                  realdrillname}) is None:
+                    if mongo_api.db['measurements'].find_one({'DrillName': realdrillname}) is None:
                         # If Renaud has already created a mesu.csv file
                         if os.path.isfile(calcifile):
                             print('exists')
@@ -79,7 +77,15 @@ if __name__ == "__main__":
 
                             print(excell2csved)
                             df1 = pd.read_csv(excell2csved[0], sep=',')
-                            df2 = pd.read_csv(csvfile, sep=',')
+
+                            if drillname == 'SUG1201' or drillname == \
+                                    'SUG1202' or drillname == 'SDZ1286':
+                                df2 = pd.read_csv(csvfile, sep=';', encoding='cp1252')
+                            else:
+                                df2 = pd.read_csv(csvfile, sep=',')
+                                if len(df2.columns) != 13:
+                                    # LibreOffice made a mess
+                                    df2 = pd.read_csv(csvfile, sep=';')
 
                             # Modify Renaud's code to create a local mesu.csv
                             # file, so that it is identical to those already
@@ -113,7 +119,7 @@ if __name__ == "__main__":
                             # push it to the database
                             mongo_api.write_mesu_many(payload)
 
-                            del df1, df2
+                            del df1, df2, df
 
         # print error messages so I can try and fix them and import them
         # idividually

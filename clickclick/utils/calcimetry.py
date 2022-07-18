@@ -231,13 +231,12 @@ def excell2csv(filelocs):
                     elif 'calcimétrie' in fname and 'Zone.Identifier' not in fname:
                         excell_files.append(f'{directory}/{fname}')
 
-    dfcolms = []
     for file in excell_files:
         print(file)
         df = pd.read_excel(file)
         sf = df.iloc[:, 0]
+        sf2 = df.iloc[:, 1]
         if 'Cote' in list(sf) or 'Cote (m)' in list(sf):
-            dfcolms.append(len(df.columns))
 
             if len(df.columns) < 5:
                 print(file)
@@ -252,8 +251,15 @@ def excell2csv(filelocs):
             dfe.columns = ['Cote', 'à 1 minute', 'à 4 minutes', 'à 19 minutes',
                            '% CaCO3', '% Dolomie', '% insolubles']
 
-        elif 'Cote toit' in list(sf):
-            dfcolms.append(len(df.columns))
+        elif 'Cote toit' in list(sf) and 'Cote mur' in list(sf2):
+
+            indx = list(sf).index('Cote toit')
+            if np.isnan(list(sf)[indx + 2]):
+                # data is in the next column, 'cote mur'
+                df = df.drop(df.columns[0], axis=1)
+            else:
+                # data is in this column
+                df = df.drop(df.columns[1], axis=1)
 
             if len(df.columns) < 5:
                 print(file)
@@ -265,7 +271,20 @@ def excell2csv(filelocs):
                     df = df.drop([colname], axis=1)
 
             dfe = df.dropna().copy()
-            dfe.drop(df.columns[1], axis=1)
+            dfe.columns = ['Cote', 'à 1 minute', 'à 3 minutes', 'à 15 minutes',
+                           '% CaCO3', '% Dolomie', '% insolubles']
+
+        elif 'Cote toit' in list(sf) and 'Cote mur' not in list(sf2):
+
+            if len(df.columns) < 5:
+                print(file)
+
+            if len(df.columns) > 7:
+                for i in range(7, len(df.columns)):
+                    colname = f'Unnamed: {i}'
+                    df = df.drop([colname], axis=1)
+
+            dfe = df.dropna().copy()
             dfe.columns = ['Cote', 'à 1 minute', 'à 3 minutes', 'à 15 minutes',
                            '% CaCO3', '% Dolomie', '% insolubles']
 
