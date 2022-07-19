@@ -5,6 +5,7 @@ import json
 import re
 import os
 import glob
+import shutil
 import numpy as np
 import pandas as pd
 
@@ -23,6 +24,8 @@ if __name__ == "__main__":
     drillfiles = [ f.path for f in os.scandir(dirhead) if f.is_dir() ]
     filename = 'imgs2.csv'
     mesuname = 'mesu.csv'
+
+    french_files = ['SUG1201', 'SUG1202', 'SDZ1286']
 
     # location of calcimetry files fo case where mesu.csv does not exist
     calcihead = '/work/armitagj/data/Excell_and_Photos/'
@@ -46,7 +49,9 @@ if __name__ == "__main__":
                     partialdrillname = f'.*{drillname}.*'
                     doc = mongo_api.db['images'].find_one({'DrillName': {'$regex' : partialdrillname}})
                     realdrillname = doc['DrillName']
+                    print(realdrillname)
 
+                    # If the drill name is not already in the databasecd
                     if mongo_api.db['measurements'].find_one({'DrillName': realdrillname}) is None:
                         # If Renaud has already created a mesu.csv file
                         if os.path.isfile(calcifile):
@@ -68,7 +73,7 @@ if __name__ == "__main__":
                         # NOTE: I don't have the mesurement ID for now, fix this
                         # once all the data is in the database
                         else:
-                            print('creating')
+                            print(f'creating {drillname}')
 
                             # grab the csv file I create with exell2csv.py
                             excell2csved = glob.glob(calcihead +
@@ -78,8 +83,7 @@ if __name__ == "__main__":
                             print(excell2csved)
                             df1 = pd.read_csv(excell2csved[0], sep=',')
 
-                            if drillname == 'SUG1201' or drillname == \
-                                    'SUG1202' or drillname == 'SDZ1286':
+                            if drillname in french_files:
                                 df2 = pd.read_csv(csvfile, sep=';', encoding='cp1252')
                             else:
                                 df2 = pd.read_csv(csvfile, sep=',')

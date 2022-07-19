@@ -236,7 +236,7 @@ def excell2csv(filelocs):
         df = pd.read_excel(file)
         sf = df.iloc[:, 0]
         sf2 = df.iloc[:, 1]
-        if 'Cote' in list(sf) or 'Cote (m)' in list(sf):
+        if 'Cote' in list(sf) or 'Cote (m)' in list(sf) or 'Cote ' in list(sf):
 
             if len(df.columns) < 5:
                 print(file)
