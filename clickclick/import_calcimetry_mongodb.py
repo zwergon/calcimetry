@@ -49,7 +49,6 @@ if __name__ == "__main__":
                     partialdrillname = f'.*{drillname}.*'
                     doc = mongo_api.db['images'].find_one({'DrillName': {'$regex' : partialdrillname}})
                     realdrillname = doc['DrillName']
-                    print(realdrillname)
 
                     # If the drill name is not already in the databasecd
                     if mongo_api.db['measurements'].find_one({'DrillName': realdrillname}) is None:
@@ -83,12 +82,12 @@ if __name__ == "__main__":
                             print(excell2csved)
                             df1 = pd.read_csv(excell2csved[0], sep=',')
 
+                            # LibreOffice made a mess...
                             if drillname in french_files:
                                 df2 = pd.read_csv(csvfile, sep=';', encoding='cp1252')
                             else:
                                 df2 = pd.read_csv(csvfile, sep=',')
                                 if len(df2.columns) != 13:
-                                    # LibreOffice made a mess
                                     df2 = pd.read_csv(csvfile, sep=';')
 
                             # Modify Renaud's code to create a local mesu.csv
@@ -125,8 +124,8 @@ if __name__ == "__main__":
 
                             del df1, df2, df
 
-        # print error messages so I can try and fix them and import them
-        # idividually
+        # print error messages so that I can try and fix them and import them
+        # idividually (see notebook single_calcimetry_import.ipynb)
         except Exception as e:
             print(drill)
             print(e)

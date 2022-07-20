@@ -27,12 +27,13 @@ if __name__ == "__main__":
 
         # grab the only diretory (not always called "Photos")
         images = [ f.path for f in os.scandir(drill) if f.is_dir() ]
-
+        drillname = drill.split('/')[-1]
         csvfile = images[0] + '/' + filename
 
         try:
             # because Renaud and I don't use the same software the csv files
-            # are not the same... so there are a few options
+            # are not the same... so there are a few options (see also the
+            # notebook single_image_import.ipynb)
 
             #df = pd.read_csv(csvfile, delimiter=';', encoding='cp1252')
             df = pd.read_csv(csvfile, delimiter=',')
@@ -70,6 +71,7 @@ if __name__ == "__main__":
                 with MongoAPI(mongo_info=mongo_info) as mongo_api:
                     if mongo_api.db['images'].find_one(
                             {'DrillName': df['DrillName'][0]}) is None:
+                        print(f'importing {drillname}')
                         mongo_api.write_img_many(payload)
 
         # print error messages so I can try and fix them and import them
