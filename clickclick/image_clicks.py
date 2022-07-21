@@ -50,7 +50,8 @@ class ScrolledCanvas(Frame):
 		try:
 			imm = server.get_file(imageName)
 		except Exception as e:
-			print(f'Error getting image {imageName}\n' + e)
+			print(f'Error getting image {imageName}')
+			print(e)
 			imm=Image.open('sadness.png')
 		# imm=Image.open(imageName)
 		width,height=imm.size

@@ -31,46 +31,49 @@ if __name__ == "__main__":
         csvfile = images[0] + '/' + filename
 
         try:
-            # because Renaud and I don't use the same software the csv files
-            # are not the same... so there are a few options (see also the
-            # notebook single_image_import.ipynb)
+            with MongoAPI(mongo_info=mongo_info) as mongo_api:
+                partialdrillname = f'.*{drillname}.*'
+                if mongo_api.db['images'].find_one(
+                    {'DrillName': {'$regex': partialdrillname}}) is None:
 
-            #df = pd.read_csv(csvfile, delimiter=';', encoding='cp1252')
-            df = pd.read_csv(csvfile, delimiter=',')
-            if len(df.columns) != 13:
-                df = pd.read_csv(csvfile, delimiter=';')
+                    # because Renaud and I don't use the same software the csv files
+                    # are not the same... so there are a few options (see also the
+                    # notebook single_image_import.ipynb)
 
-            if len(df.columns) == 13:
-                df = df.drop(columns=['Path'])
+                    #df = pd.read_csv(csvfile, delimiter=';', encoding='cp1252')
+                    df = pd.read_csv(csvfile, delimiter=',')
+                    if len(df.columns) != 13:
+                        df = pd.read_csv(csvfile, delimiter=';', encoding='cp1252')
 
-                # convert the coordinates into a list for mongodb
-                df['k_Up'] = df['k_Up'].str.replace(r'{', '', regex=True)
-                df['k_Up'] = df['k_Up'].str.replace(r'}', '', regex=True)
-                df['k_Up'] = df['k_Up'].str.replace(r';', ',', regex=True)
+                    if len(df.columns) == 13:
+                        df = df.drop(columns=['Path'])
 
-                df['k_Down'] = df['k_Down'].str.replace(r'{', '', regex=True)
-                df['k_Down'] = df['k_Down'].str.replace(r'}', '', regex=True)
-                df['k_Down'] = df['k_Down'].str.replace(r';', ',', regex=True)
+                        # convert the coordinates into a list for mongodb
+                        df['k_Up'] = df['k_Up'].str.replace(r'{', '', regex=True)
+                        df['k_Up'] = df['k_Up'].str.replace(r'}', '', regex=True)
+                        df['k_Up'] = df['k_Up'].str.replace(r';', ',', regex=True)
 
-                df['k_Arrow'] = df['k_Arrow'].str.replace(r'{', '', regex=True)
-                df['k_Arrow'] = df['k_Arrow'].str.replace(r'}', '', regex=True)
-                df['k_Arrow'] = df['k_Arrow'].str.replace(r';', ',', regex=True)
+                        df['k_Down'] = df['k_Down'].str.replace(r'{', '', regex=True)
+                        df['k_Down'] = df['k_Down'].str.replace(r'}', '', regex=True)
+                        df['k_Down'] = df['k_Down'].str.replace(r';', ',', regex=True)
 
-                df['k_Up'] = df['k_Up'].apply(
-                    lambda x: np.array(x.split(','), dtype=int).reshape(-1, 2)  if(pd.notnull(x)) else x)
-                df['k_Down'] = df['k_Down'].apply(
-                    lambda x: np.array(x.split(','), dtype=int).reshape(-1, 2)  if(pd.notnull(x)) else x)
-                df['k_Arrow'] = df['k_Arrow'].apply(
-                    lambda x: np.array(x.split(','), dtype=int).reshape(-1, 2)  if(pd.notnull(x)) else x)
+                        df['k_Arrow'] = df['k_Arrow'].str.replace(r'{', '', regex=True)
+                        df['k_Arrow'] = df['k_Arrow'].str.replace(r'}', '', regex=True)
+                        df['k_Arrow'] = df['k_Arrow'].str.replace(r';', ',', regex=True)
 
-                # create the json payload
-                payload = json.loads(df.to_json(orient='records'))
+                        df['k_Up'] = df['k_Up'].apply(
+                            lambda x: np.array(x.split(','), dtype=int).reshape(-1, 2)  if(pd.notnull(x)) else x)
+                        df['k_Down'] = df['k_Down'].apply(
+                            lambda x: np.array(x.split(','), dtype=int).reshape(-1, 2)  if(pd.notnull(x)) else x)
+                        df['k_Arrow'] = df['k_Arrow'].apply(
+                            lambda x: np.array(x.split(','), dtype=int).reshape(-1, 2)  if(pd.notnull(x)) else x)
 
-                # push it to the database if the dirll name is not already
-                # there
-                with MongoAPI(mongo_info=mongo_info) as mongo_api:
-                    if mongo_api.db['images'].find_one(
-                            {'DrillName': df['DrillName'][0]}) is None:
+                        # create the json payload
+                        payload = json.loads(df.to_json(orient='records'))
+
+                        # push it to the database if the dirll name is not already
+                        # there
+
                         print(f'importing {drillname}')
                         mongo_api.write_img_many(payload)
 
