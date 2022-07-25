@@ -56,7 +56,7 @@ MongoDB and check number of datapoints within the database correspond with
 those on the local machine.
 
 * `open-image-calcimetry.ipynb` - Notebook to plot an image and the
-corresponding calcimety measurements.
+corresponding calcimetry measurements.
 
 * `single_calcimetry_import.ipynb` - Notebook to import calcimetry data to
 the MongoDB when the file format does not work with the clickclick script.
