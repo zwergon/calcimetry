@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     mongo_info = MongoInfo()
 
-    dirhead = '/work/armitagj/data/csvs/REP4/'
+    dirhead = '/work/armitagj/data/csvs/REP5/'
     drillfiles = [ f.path for f in os.scandir(dirhead) if f.is_dir() ]
     filename = 'imgs2.csv'
 

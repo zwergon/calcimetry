@@ -39,16 +39,6 @@ file within the directory that corresponds to the drill name. This therefore
  has to be run after `image_clicks.py`. The location of the files to be
 imported is hard coded into the script (line 21).
 
-#### Drill names still to do:
-
-OHZ7008
-OHZ7101
-OHZ7102
-OMA4003
-PAC1001
-PAC1002
-PAC2003
-
 ### `notebooks`
 
 * `QC-measurements.ipynb` - Notebook to check what drill names are on the
