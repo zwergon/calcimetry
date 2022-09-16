@@ -8,6 +8,7 @@ import pandas as pd
 
 from calcimetry.carrot_img import CarrotImage
 from calcimetry.measurement import Measurement
+from calcimetry.polyline import Polyline
 from calcimetry.mongo_api import MongoAPI, MongoInfo
 import calcimetry.use_server as server
 
@@ -43,7 +44,10 @@ class CalcimetryAPI(MongoAPI):
         file = fs.find_one({"filename": str(image_id)})
         jpg = Image.open(io.BytesIO(file.read()))
         
-        return CarrotImage(jpg, resolution = self.get_resolution(image_id))
+        infos = self.get_infos(image_id)
+        measurements = self.get_measurements(image_id)
+       
+        return CarrotImage(jpg, infos = infos, measurements=measurements)
 
     def read_vignette(self, image_id, center=None, dim=128):
         """return a PIL Image object with only the part of CarrotImage image_id from size dimxdim"""
@@ -64,10 +68,13 @@ class CalcimetryAPI(MongoAPI):
         filename = f"{self.img_path}/calci_photos/{drill_name}/Photos/{doc['FileName']}"
         jpg = server.get_file(filename)
 
-        return CarrotImage(jpg, resolution = self.get_resolution(image_id))
+        infos = self.get_infos(image_id)
+        measurements = self.get_measurements(image_id)
+       
+        return CarrotImage(jpg, infos = infos, measurements=measurements)
 
 
-    def get_measurements_from_image(self, image_id):
+    def get_measurements(self, image_id):
         measurements = []
         docs = self.db[self.MES_COL].find({'ImageId': image_id })
         for doc in docs:
@@ -102,18 +109,28 @@ class CalcimetryAPI(MongoAPI):
 
         return df
 
-    def get_resolution(self, image_id):
+    def get_infos(self, image_id):
         doc = self.db[self.IMG_COL].find_one({'ImageId': image_id })
 
         ratio = (doc['Cote1']-doc['Cote0']) /(doc['px1']-doc['px0'])
 
-        resolution = abs(ratio)
-        w_transform = (doc['Cote0'], 1. / resolution)
-         
-        return resolution, w_transform
+        infos = {
+            "px_extent": (doc['px0'], doc['px1']),
+            'w_extent': (doc['Cote0'], doc['Cote1']),
+            "k_arrow": Polyline(doc['k_Arrow'])
+        }
+        return infos
 
     def get_drill_names(self):
         return set(self.db['images'].distinct("DrillName"))
+
+    def get_images_id(self, drillname):
+        img_ids = []
+        docs = self.db[self.IMG_COL].find({'DrillName': drillname })
+        for doc in docs:
+            img_ids.append(doc['ImageId'])
+            
+        return img_ids
 
     def get_drill_list(self):
         drill_list = set()

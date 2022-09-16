@@ -8,5 +8,6 @@ class Measurement:
         self.val_1m = val_1m
         self.val_15m = val_15m
 
+
     def __repr__(self) -> str:
         return f"Measure ({self.measure_id}): ({self.cote}->{self.val_1m})"

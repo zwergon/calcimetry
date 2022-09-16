@@ -21,9 +21,9 @@ class PolylineTest(unittest.TestCase):
             )
         print(polyline.mean)
 
-        print( polyline.value(3000))
-        print( polyline.value(55))
-        print( polyline.value(3210))
+        print( polyline.p_y(3000))
+        print( polyline.p_y(55))
+        print( polyline.p_y(3210))
         
 
 

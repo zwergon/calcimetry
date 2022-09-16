@@ -1,6 +1,7 @@
 import unittest
 from calcimetry.calcimetry_api import CalcimetryAPI
 from calcimetry.mongo_api import MongoInfo
+from calcimetry.measurement import Measurement
 
 import matplotlib.pyplot as plt
 
@@ -10,7 +11,7 @@ class CalcimetryTest(unittest.TestCase):
     PORT=27017
     IMG_ID = 1
 
-    def test_read_info(self):
+    def test_read_image_info(self):
         mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
         with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
             infos = calcimetry_api.read_image_info(self.IMG_ID)
@@ -21,6 +22,7 @@ class CalcimetryTest(unittest.TestCase):
         with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
             img = calcimetry_api.read_image(self.IMG_ID)
             print(f"resolution : {img.resolution}")
+            print(f"n_measurements: {img.n_measurements}")
             plt.imshow(img.jpg)
             plt.show()
 
@@ -49,11 +51,11 @@ class CalcimetryTest(unittest.TestCase):
             df = calcimetry_api.get_images_df({"DrillName": "KEY1207"})
             print(df.head())
 
-    def test_get_resolution(self):
+    def test_get_infos(self):
         mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
         with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
-            resolution = calcimetry_api.get_resolution(self.IMG_ID)
-            print(resolution)
+            infos = calcimetry_api.get_infos(self.IMG_ID)
+            print(infos)
 
     def test_get_vignette(self):
         mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
@@ -64,9 +66,23 @@ class CalcimetryTest(unittest.TestCase):
     def test_get_measurements(self):
         mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
         with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
-            measurements = calcimetry_api.get_measurements_from_image(self.IMG_ID)
+            measurements = calcimetry_api.get_measurements(self.IMG_ID)
             for m in measurements:
                 print(m)
+
+    def test_vignette_from_cote(self):
+        mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
+        with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
+            img = calcimetry_api.read_image(self.IMG_ID)
+            measure = img.measurements[6]
+            dim = 128
+            center = (
+                img.p_x(measure.cote) + dim // 2, 
+                img.k_arrow.p_y(measure.cote)
+                )
+            vignette = calcimetry_api.read_vignette(self.IMG_ID, center, dim=dim)
+            plt.imshow(vignette)
+            plt.show()
 
 
 if __name__ == '__main__':
