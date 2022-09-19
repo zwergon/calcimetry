@@ -112,12 +112,14 @@ class CalcimetryAPI(MongoAPI):
     def get_infos(self, image_id):
         doc = self.db[self.IMG_COL].find_one({'ImageId': image_id })
 
-        ratio = (doc['Cote1']-doc['Cote0']) /(doc['px1']-doc['px0'])
-
+       
         infos = {
+            "image_id": image_id,
             "px_extent": (doc['px0'], doc['px1']),
             'w_extent': (doc['Cote0'], doc['Cote1']),
-            "k_arrow": Polyline(doc['k_Arrow'])
+            'k_up': Polyline(doc['k_Up']),
+            "k_arrow": Polyline(doc['k_Arrow']),
+            'k_down': Polyline(doc['k_Down'])
         }
         return infos
 

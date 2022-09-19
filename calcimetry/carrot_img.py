@@ -4,6 +4,7 @@ class CarrotImage:
 
     def __init__(self, jpg: Image, infos: dict, measurements = []) -> None:
         self.infos = {
+            "image_id": -1,
             "w_extent": (0, 1), # default value
             "resolution": 1., # default value
             "k_arrow": None, # a Polyline object at the middle of the carrot
@@ -16,14 +17,35 @@ class CarrotImage:
         self.infos.update(infos)
 
     @property
+    def image_id(self):
+        return self.infos['image_id']
+
+    @property
     def resolution(self):
         px_extent = self.infos['px_extent']
         w_extent = self.infos['w_extent']
         return abs((w_extent[1]-w_extent[0])/(px_extent[1]-px_extent[0]))
 
     @property
+    def y_ratio(self):
+        y_up_mean = self.k_up.mean
+        
+        y_down_mean = self.k_down.mean
+        _, h = self.jpg.size
+        print(y_down_mean, y_up_mean, h)
+        return (y_down_mean-y_up_mean)/h # y scale reverse y_down > y_up
+
+    @property
     def k_arrow(self):
         return self.infos['k_arrow']
+
+    @property
+    def k_up(self):
+        return self.infos['k_up']
+
+    @property
+    def k_down(self):
+        return self.infos['k_down']
 
     @property
     def measurements(self):
