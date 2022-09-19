@@ -76,6 +76,22 @@ class CalcimetryTest(unittest.TestCase):
             img = calcimetry_api.read_image(self.IMG_ID)
             print(img.y_ratio)
 
+    def test_filtered_images(self):
+        drillnames = ["BPE4023", "SUG1101"]
+        cotes_min_max = [100, 300]
+        mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
+        with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
+            image_ids = calcimetry_api.get_filtered_images_id()
+            print(len(image_ids))
+            image_ids = calcimetry_api.get_filtered_images_id(drillnames=drillnames)
+            print(len(image_ids))
+            image_ids = calcimetry_api.get_filtered_images_id(cotes_min_max=cotes_min_max)
+            print(len(image_ids))
+            image_ids = calcimetry_api.get_filtered_images_id(
+                drillnames=drillnames,
+                cotes_min_max=cotes_min_max
+                )
+            print(image_ids)
 
     def test_vignette_from_cote(self):
         dim = 128
