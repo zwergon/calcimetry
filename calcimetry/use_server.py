@@ -16,7 +16,7 @@ def init():
     __SERVER_URL__ = 'http://imgserver.10.68.0.250.nip.io'
     # Le répertoire parent sur ce serveur ou chercher des images.
     __ROOT_PATH__ ='/data/andra'
-    print(f"server : {__SERVER_URL__}{__ROOT_PATH__}")
+    #print(f"server : {__SERVER_URL__}{__ROOT_PATH__}")
     return __ROOT_PATH__
 
 def get_list(img_path):
@@ -39,7 +39,7 @@ def get_list(img_path):
     return files
 
 
-def get_file(filename, quiet=False):
+def get_file(filename, quiet=True):
     """
     Retour une Image (PIL) lue à partir d'un fichier jpeg de la liste
     :param filename: le chemin complet vers le fichier jpeg comme retournée par get_list
