@@ -6,6 +6,7 @@ dependencies:
   - matplotlib
   - scipy
   - pandas
+  - pymongo
   - xlrd
   - scikit-image
   - scikit-learn
@@ -16,6 +17,8 @@ dependencies:
   - ipywidgets
   - voila
   - rise
+    # speed
+  - mamba
   - pip:
       - opencv-python
       - piq
