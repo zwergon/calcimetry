@@ -10,7 +10,7 @@ from calcimetry.carrot_img import CarrotImage
 from calcimetry.measurement import Measurement
 from calcimetry.polyline import Polyline
 from calcimetry.mongo_api import MongoAPI, MongoInfo
-from calcimetry.pipelines import image_selection_pipeline
+from calcimetry.pipelines import image_selection_pipeline, min_max_criteria
 import calcimetry.use_server as server
 
 
@@ -174,3 +174,12 @@ class CalcimetryAPI(MongoAPI):
                 drill_list.add(name)
 
         return drill_list
+
+
+    def get_min_max_criteria(self):
+          docs = self.db[self.IMG_COL].aggregate(min_max_criteria())
+          if docs is not None:
+            result = dict(next(docs))
+            if '_id' in result:
+                del result['_id']
+            return result

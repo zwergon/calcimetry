@@ -108,6 +108,13 @@ class CalcimetryTest(unittest.TestCase):
             plt.imshow(vignette)
             plt.show()
 
+    def test_min_max_criteria(self):
+        mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
+        with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
+            mini_maxi = calcimetry_api.get_min_max_criteria()
+            print(mini_maxi)
+       
+
 
 if __name__ == '__main__':
     unittest.main()

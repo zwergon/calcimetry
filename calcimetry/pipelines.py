@@ -1,5 +1,8 @@
 
 
+from cmath import nan
+
+
 def image_selection_pipeline(drills, cotes_min_max):
     pipeline = [
         {
@@ -27,6 +30,49 @@ def image_selection_pipeline(drills, cotes_min_max):
 
     return pipeline
 
+def min_max_criteria():
+    pipeline =     [
+        { 
+            "$match" : { 
+                "px0" : { 
+                    "$ne" : nan
+                }, 
+                "criteria.y_ratio" : { 
+                    "$gt" : 0.0
+                }
+            }
+        }, 
+        { 
+            "$group" : { 
+                "_id" : None, 
+                "min_nb" : { 
+                    "$min" : "$criteria.n_measurements"
+                }, 
+                "max_nb" : { 
+                    "$max" : "$criteria.n_measurements"
+                }, 
+                "min_res" : { 
+                    "$min" : "$criteria.resolution"
+                }, 
+                "max_res" : { 
+                    "$max" : "$criteria.resolution"
+                }, 
+                "avg_res" : { 
+                    "$avg" : "$criteria.resolution"
+                }, 
+                "min_y_ratio" : { 
+                    "$min" : "$criteria.y_ratio"
+                }, 
+                "max_y_ratio" : { 
+                    "$max" : "$criteria.y_ratio"
+                }, 
+                "avg_y_ratio" : { 
+                    "$avg" : "$criteria.y_ratio"
+                }
+            }
+        }
+    ]
+    return pipeline
 
 def extra_params_pipeline():
     pipeline = [
