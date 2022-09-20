@@ -10,7 +10,9 @@ from calcimetry.carrot_img import CarrotImage
 from calcimetry.measurement import Measurement
 from calcimetry.polyline import Polyline
 from calcimetry.mongo_api import MongoAPI, MongoInfo
+from calcimetry.pipelines import image_selection_pipeline
 import calcimetry.use_server as server
+
 
 
 class CalcimetryAPI(MongoAPI):
@@ -112,12 +114,14 @@ class CalcimetryAPI(MongoAPI):
     def get_infos(self, image_id):
         doc = self.db[self.IMG_COL].find_one({'ImageId': image_id })
 
-        ratio = (doc['Cote1']-doc['Cote0']) /(doc['px1']-doc['px0'])
-
+       
         infos = {
+            "image_id": image_id,
             "px_extent": (doc['px0'], doc['px1']),
             'w_extent': (doc['Cote0'], doc['Cote1']),
-            "k_arrow": Polyline(doc['k_Arrow'])
+            'k_up': Polyline(doc['k_Up']),
+            "k_arrow": Polyline(doc['k_Arrow']),
+            'k_down': Polyline(doc['k_Down'])
         }
         return infos
 
@@ -125,12 +129,36 @@ class CalcimetryAPI(MongoAPI):
         return set(self.db['images'].distinct("DrillName"))
 
     def get_images_id(self, drillname):
+        """
+        This methods returns the list of "ImageId" that belong to this drillname
+        """
         img_ids = []
         docs = self.db[self.IMG_COL].find({'DrillName': drillname })
         for doc in docs:
             img_ids.append(doc['ImageId'])
             
         return img_ids
+
+
+    def get_filtered_images_id(self, drillnames: list = None, cotes_min_max: tuple=None):
+        """
+        This method return a list of "ImageId" that fit the following filter:
+        - if all filters are None, return the whole ids for the image database
+        - only image ids whose fit the selected filter options
+        """
+        img_ids = []
+
+        # if no filter is given return the whole list of image ids.
+        if drillnames is None and cotes_min_max is None:
+            docs = self.db[self.IMG_COL].find({})
+        else:
+            docs = self.db[self.IMG_COL].aggregate(
+                    image_selection_pipeline(
+                        drills=drillnames, 
+                        cotes_min_max=cotes_min_max
+                        )
+                )
+        return [ d['ImageId'] for d in docs ]
 
     def get_drill_list(self):
         drill_list = set()

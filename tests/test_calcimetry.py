@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 class CalcimetryTest(unittest.TestCase):
 
     HOST='localhost'
-    PORT=27017
-    IMG_ID = 1
+    PORT=27010
+    IMG_ID = 1412
 
     def test_read_image_info(self):
         mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
@@ -70,15 +70,39 @@ class CalcimetryTest(unittest.TestCase):
             for m in measurements:
                 print(m)
 
-    def test_vignette_from_cote(self):
+    def test_get_y_ratio(self):
         mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
         with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
             img = calcimetry_api.read_image(self.IMG_ID)
-            measure = img.measurements[6]
-            dim = 128
+            print(img.y_ratio)
+
+    def test_filtered_images(self):
+        drillnames = ["BPE4023", "SUG1101"]
+        cotes_min_max = [100, 300]
+        mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
+        with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
+            image_ids = calcimetry_api.get_filtered_images_id()
+            print(len(image_ids))
+            image_ids = calcimetry_api.get_filtered_images_id(drillnames=drillnames)
+            print(len(image_ids))
+            image_ids = calcimetry_api.get_filtered_images_id(cotes_min_max=cotes_min_max)
+            print(len(image_ids))
+            image_ids = calcimetry_api.get_filtered_images_id(
+                drillnames=drillnames,
+                cotes_min_max=cotes_min_max
+                )
+            print(image_ids)
+
+    def test_vignette_from_cote(self):
+        dim = 128
+        mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
+        with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
+            img = calcimetry_api.read_image(self.IMG_ID)
+            measure = img.measurements[0]
+            p_x = img.p_x(measure.cote) + dim // 2
             center = (
-                img.p_x(measure.cote) + dim // 2, 
-                img.k_arrow.p_y(measure.cote)
+                p_x, # get for this picture the position in pixel from this measure, shift of half of the size
+                img.k_arrow.p_y(p_x) # get on k_arrow line the position in pixel from this measure
                 )
             vignette = calcimetry_api.read_vignette(self.IMG_ID, center, dim=dim)
             plt.imshow(vignette)
