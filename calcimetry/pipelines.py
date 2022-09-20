@@ -26,3 +26,39 @@ def image_selection_pipeline(drills, cotes_min_max):
     #print(pipeline)
 
     return pipeline
+
+
+def extra_params_pipeline():
+    pipeline = [
+        # {
+        #     "$addFields": {
+        #         "resolution": {
+        #             "$function": {
+        #                 "body": function(p0, p1, c0, c1){
+        #                     return Math.abs((c0-c1)/(p0-p1))
+        #                 },
+        #                 "args": [
+        #                     "$px0",
+        #                     "$px1",
+        #                     "$Cote0",
+        #                     "$Cote1"
+        #                 ],
+        #                 "lang": "js"
+        #             }
+        #         },
+        #         "k_up_mean": {
+        #             "$avg": {
+        #                 "$map": {
+        #                     "input": "$k_Up",
+        #                     "as": "xy_up",
+        #                     "in": {
+        #                         "$last": "$$xy_up"
+        #                     }
+        #                 }
+        #             }
+        #         }
+        #     }
+        # }
+    ]
+
+    return pipeline

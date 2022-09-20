@@ -1,5 +1,7 @@
 from PIL import Image
 
+Image.MAX_IMAGE_PIXELS = 933120000
+
 class CarrotImage:
 
     def __init__(self, jpg: Image, infos: dict, measurements = []) -> None:
@@ -13,7 +15,7 @@ class CarrotImage:
             "measurements": measurements
         }
         self.jpg = jpg
-        self.infos['px_extent'] = self.jpg.size # default value
+        self.infos['px_extent'] = self.jpg.size if jpg is not None else 1 # default value
         self.infos.update(infos)
 
     @property
@@ -32,7 +34,6 @@ class CarrotImage:
         
         y_down_mean = self.k_down.mean
         _, h = self.jpg.size
-        print(y_down_mean, y_up_mean, h)
         return (y_down_mean-y_up_mean)/h # y scale reverse y_down > y_up
 
     @property

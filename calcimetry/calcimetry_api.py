@@ -44,6 +44,9 @@ class CalcimetryAPI(MongoAPI):
         """
         fs = gridfs.GridFS(self.db, collection=self.JPG_COL)
         file = fs.find_one({"filename": str(image_id)})
+        if file is None:
+            print(f"Jpg file {image_id} not found.")
+            return None
         jpg = Image.open(io.BytesIO(file.read()))
         
         infos = self.get_infos(image_id)

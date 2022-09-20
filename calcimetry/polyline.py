@@ -4,6 +4,8 @@ import numpy as np
 class Polyline:
 
     def __init__(self, pts) -> None:
+        self.empty = len(pts) == 0
+
         self.x = np.zeros(len(pts))
         self.y = np.zeros(len(pts))
         for i, pt in enumerate(pts):
@@ -12,7 +14,9 @@ class Polyline:
 
     @property
     def mean(self):
-        return int(np.mean(self.y))
+        if not self.empty:
+            return int(np.mean(self.y))
+        return 0
 
 
     def p_y(self, x):
