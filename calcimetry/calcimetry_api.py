@@ -25,7 +25,7 @@ class CalcimetryAPI(MongoAPI):
     def __init__(self, mongo_info):
         super().__init__(mongo_info)
         self.img_path = server.init()
-        print(self.img_path)
+        #print(self.img_path)
 
 
     def read_image_info(self, image_id):
