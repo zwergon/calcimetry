@@ -3,6 +3,21 @@
 Pour l'estimation de la calcimétrie à partir d'une carotte de forage par Deep
 Learning.
 
+# Instalation of libraries on the SandBox
+
+* Proxy server configuration
+```
+export http_proxy=http://irproxy:8082
+export https_proxy=http://irproxy:8082
+conda config --set proxy_servers.https http://irproxy:8082
+```
+* Installation via mamba
+```
+conda install -c conda-forge mamba
+mamba install --prefix /work/home/.conda/envs/ai.calcimetry -f environment.yml
+python -m ipykernel install --user --name=ai.calcimetry --display-name="Python (ai.calcimetry)"
+````
+
 ## Directories
 
 ### `calcimetry`
