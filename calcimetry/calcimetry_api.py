@@ -1,4 +1,8 @@
-
+"""
+calcimetry_api
+====================================
+API to read and write data from the MongoDB
+"""
 
 import io
 import re
@@ -29,6 +33,11 @@ class CalcimetryAPI(MongoAPI):
 
 
     def read_image_info(self, image_id):
+        """
+        Return image information
+        :param image_id: Image ID
+        :return: image information in a Python dict
+        """
         doc = self.db[self.IMG_COL].find_one({'ImageId': image_id })
         if '_id' in doc:
             del doc['_id']
@@ -37,8 +46,7 @@ class CalcimetryAPI(MongoAPI):
     def read_image(self, image_id):
         """
         load a jpeg image from its imageid directly from mongo gridfs
-        
-        -----
+
         returns:
             a _CarrotImage_ object
         """
@@ -64,7 +72,6 @@ class CalcimetryAPI(MongoAPI):
         """
         load a jpeg image from its imageid using flask webservice on islin-hdmpas1 : slow
 
-        ---------
         returns:
             a _CarrotImage_ object
         """
@@ -97,7 +104,6 @@ class CalcimetryAPI(MongoAPI):
         """
         Creates a panda dataframe from the "images" collection filtered by the given query to restrict to some image_id
 
-        -----------
         Examples:
             df = calcimetry_api.get_images_df(query={"DrillName": "KEY1207"})
 
