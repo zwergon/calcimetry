@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # gitlab CICD pipeline
 # based on this: https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Python.gitlab-ci.yml
 
@@ -30,3 +31,14 @@ pages:
       - public
   only:
     - tags
+=======
+mage: python:latest
+
+run:
+  tags:
+    - Docker-1
+  script:
+    - pip install build twine
+    - python -m build
+    - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url https://gitlab.ifpen.fr/api/v4/projects/${CI_PROJECT_ID}/packages/pypi dist/*
+>>>>>>> 8389e40 (add packaging files)
