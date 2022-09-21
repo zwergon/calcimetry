@@ -143,7 +143,9 @@ class CalcimetryAPI(MongoAPI):
         return img_ids
 
 
-    def get_filtered_images_id(self, drillnames: list = None, cotes_min_max: tuple=None):
+    def get_filtered_images_id(self, drillnames: list = None, #cotes_min_max: tuple=None):
+                               cotemin: float=None, cotemax: float=None, resomin: float=None, resomax: float=None,
+                               yratmin: float=None, yratmax: float=None, nmesmin: int=None, nmesmax: int=None):
         """
         This method return a list of "ImageId" that fit the following filter:
         - if all filters are None, return the whole ids for the image database
@@ -151,14 +153,25 @@ class CalcimetryAPI(MongoAPI):
         """
         img_ids = []
 
+        testNone = drillnames is None and cotemin is None and cotemax is None and resomin is None and \
+                   resomax is None and yratmin is None and yratmax is None and nmesmin is None and nmesmax is None
+
         # if no filter is given return the whole list of image ids.
-        if drillnames is None and cotes_min_max is None:
+        if testNone: # drillnames is None and cotes_min_max is None:
             docs = self.db[self.IMG_COL].find({})
         else:
             docs = self.db[self.IMG_COL].aggregate(
                     image_selection_pipeline(
-                        drills=drillnames, 
-                        cotes_min_max=cotes_min_max
+                        drills=drillnames,
+                        cotemin=cotemin,
+                        cotemax=cotemax,
+                        resomin=resomin,
+                        resomax=resomax,
+                        yratmin=yratmin,
+                        yratmax=yratmax,
+                        nmesmin=nmesmin,
+                        nmesmax=nmesmax
+                        #cotes_min_max=cotes_min_max
                         )
                 )
         return [ d['ImageId'] for d in docs ]

@@ -3,7 +3,8 @@
 from cmath import nan
 
 
-def image_selection_pipeline(drills, cotes_min_max):
+def image_selection_pipeline(drills, #cotes_min_max,
+                             cotemin, cotemax, resomin, resomax, yratmin, yratmax, nmesmin, nmesmax):
     pipeline = [
         {
             "$match": {
@@ -22,9 +23,19 @@ def image_selection_pipeline(drills, cotes_min_max):
         pipeline[0]['$match']['$and'].append( {"DrillName": {"$in": drills}} )
 
     # add some "cote" constraints in match stage of the pipeline
-    if cotes_min_max is not None:
-        pipeline[0]['$match']['$and'].append( {"Cote0": {"$gte": cotes_min_max[0]}} )
-        pipeline[0]['$match']['$and'].append( {"Cote1": {"$lte": cotes_min_max[1]}} )
+    # if cotes_min_max is not None:
+    #     pipeline[0]['$match']['$and'].append( {"Cote0": {"$gte": cotes_min_max[0]}} )
+    #     pipeline[0]['$match']['$and'].append( {"Cote1": {"$lte": cotes_min_max[1]}} )
+
+    for (condmin, prop) in [(cotemin, "Cote0"), (resomin, "criteria.resolution"), (yratmin, "criteria.y_ratio"),
+                            (nmesmin, "criteria.n_measurements")]:
+        if condmin is not None:
+            pipeline[0]['$match']['$and'].append( {prop: {"$gte": condmin}} )
+
+    for (condmax, prop) in [(cotemax, "Cote0"), (resomax, "criteria.resolution"), (yratmax, "criteria.y_ratio"),
+                            (nmesmax, "criteria.n_measurements")]:
+        if condmax is not None:
+            pipeline[0]['$match']['$and'].append( {prop: {"$lte": condmax}} )
 
     #print(pipeline)
 
