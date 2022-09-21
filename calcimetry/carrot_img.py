@@ -8,7 +8,6 @@ class CarrotImage:
         self.infos = {
             "image_id": -1,
             "w_extent": (0, 1), # default value
-            "resolution": 1., # default value
             "k_arrow": None, # a Polyline object at the middle of the carrot
             "k_up": None,
             "k_down": None,
@@ -17,7 +16,7 @@ class CarrotImage:
         self.jpg = jpg
         self.infos['px_extent'] = self.jpg.size if jpg is not None else 1 # default value
         self.infos.update(infos)
-
+       
     @property
     def image_id(self):
         return self.infos['image_id']

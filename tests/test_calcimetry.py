@@ -48,7 +48,7 @@ class CalcimetryTest(unittest.TestCase):
     def test_get_images_df(self):
         mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
         with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
-            df = calcimetry_api.get_images_df({"DrillName": "KEY1207"})
+            df = calcimetry_api.get_images_df({"ImageId": {"$in": [0, 1, 2, 3]}})
             print(df.head())
 
     def test_get_infos(self):
