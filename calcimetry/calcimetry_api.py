@@ -137,6 +137,14 @@ class CalcimetryAPI(MongoAPI):
     def get_drill_names(self):
         return set(self.db['images'].distinct("DrillName"))
 
+    def get_drill_name_for_image(self, image_id):
+        drill_list = []
+        docs = self.db[self.IMG_COL].find({'ImageId': image_id})
+        for doc in docs:
+            drill_list.append(doc['DrillName'])
+
+        return drill_list
+
     def get_images_id(self, drillname):
         """
         This methods returns the list of "ImageId" that belong to this drillname
