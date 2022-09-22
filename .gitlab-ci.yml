@@ -26,9 +26,10 @@ pages:
   before_script:
     - apt-get update -q -y
     - apt-get install -y build-essential
-    - pip install -r requirements.txt
+    - pip install virtualenv
+    - virtualenv venv
     - source venv/bin/activate
-    - pip install sphinx nbsphinx sphinx-rtd-theme furo
+    - pip install -r requirements.txt
   script:
     - cd docs ; make html
     - echo "The site will be deployed to $CI_PAGES_URL"
