@@ -19,24 +19,23 @@ package:
   
 # create the documentation (only on a tag), which involves installing the
 #  python environment and the other dependencies for the docker image.
-# pages:
-#   stage: deploy
-#   tags:
-#     - Docker-1
-#   before_script:
-#     - apt-get update -q -y
-#     - apt-get install -y build-essential
-#     - conda install -c conda-forge mamba
-#     - mamba env create -f environment.yml
-#     - source activate ai.calcimetry
-#     - pip install sphinx nbsphinx sphinx-rtd-theme furo
-#   script:
-#     - cd docs ; make html
-#     - echo "The site will be deployed to $CI_PAGES_URL"
-#   after_script:
-#     - mv docs/build/html/ ./public/
-#   artifacts:
-#     paths:
-#       - public
-#   only:
-#     - tags
+pages:
+  stage: deploy
+  tags:
+    - Docker-1
+  before_script:
+    - apt-get update -q -y
+    - apt-get install -y build-essential
+    - pip install -r requirements.txt
+    - source venv/bin/activate
+    - pip install sphinx nbsphinx sphinx-rtd-theme furo
+  script:
+    - cd docs ; make html
+    - echo "The site will be deployed to $CI_PAGES_URL"
+  after_script:
+    - mv docs/build/html/ ./public/
+  artifacts:
+    paths:
+      - public
+#  only:
+#    - tags
