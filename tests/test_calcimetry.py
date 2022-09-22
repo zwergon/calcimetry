@@ -2,23 +2,23 @@ import unittest
 from calcimetry.calcimetry_api import CalcimetryAPI
 from calcimetry.mongo_api import MongoInfo
 from calcimetry.measurement import Measurement
+from tests.config import Config
 
 import matplotlib.pyplot as plt
 
 class CalcimetryTest(unittest.TestCase):
 
-    HOST='localhost'
-    PORT=27010
+  
     IMG_ID = 1412
 
     def test_read_image_info(self):
-        mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
+        mongo_info = MongoInfo(host=Config.HOST, port=Config.PORT)
         with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
             infos = calcimetry_api.read_image_info(self.IMG_ID)
             print(infos)
 
     def test_read_image(self):
-        mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
+        mongo_info = MongoInfo(host=Config.HOST, port=Config.PORT)
         with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
             img = calcimetry_api.read_image(self.IMG_ID)
             print(f"resolution : {img.resolution}")
@@ -27,7 +27,7 @@ class CalcimetryTest(unittest.TestCase):
             plt.show()
 
     def test_read_image_from_server(self):
-        mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
+        mongo_info = MongoInfo(host=Config.HOST, port=Config.PORT)
         with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
             img = calcimetry_api.read_image_from_server(self.IMG_ID)
             print(f"resolution : {img.resolution}")
@@ -35,43 +35,43 @@ class CalcimetryTest(unittest.TestCase):
             plt.show()
                 
     def test_get_drill_list(self):
-        mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
+        mongo_info = MongoInfo(host=Config.HOST, port=Config.PORT)
         with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
             print(calcimetry_api.get_drill_list())
 
     def test_get_drill_names(self):
-        mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
+        mongo_info = MongoInfo(host=Config.HOST, port=Config.PORT)
         with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
             print(calcimetry_api.get_drill_names())
 
     
     def test_get_images_df(self):
-        mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
+        mongo_info = MongoInfo(host=Config.HOST, port=Config.PORT)
         with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
             df = calcimetry_api.get_images_df({"ImageId": {"$in": [0, 1, 2, 3]}})
             print(df.head())
 
     def test_get_infos(self):
-        mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
+        mongo_info = MongoInfo(host=Config.HOST, port=Config.PORT)
         with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
             infos = calcimetry_api.get_infos(self.IMG_ID)
             print(infos)
 
     def test_get_vignette(self):
-        mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
+        mongo_info = MongoInfo(host=Config.HOST, port=Config.PORT)
         with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
             vignette = calcimetry_api.read_vignette(self.IMG_ID)
             vignette.show()
 
     def test_get_measurements(self):
-        mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
+        mongo_info = MongoInfo(host=Config.HOST, port=Config.PORT)
         with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
             measurements = calcimetry_api.get_measurements(self.IMG_ID)
             for m in measurements:
                 print(m)
 
     def test_get_y_ratio(self):
-        mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
+        mongo_info = MongoInfo(host=Config.HOST, port=Config.PORT)
         with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
             img = calcimetry_api.read_image(self.IMG_ID)
             print(img.y_ratio)
@@ -79,7 +79,7 @@ class CalcimetryTest(unittest.TestCase):
     def test_filtered_images(self):
         drillnames = ["BPE4023", "SUG1101"]
         cotes_min_max = [100, 300]
-        mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
+        mongo_info = MongoInfo(host=Config.HOST, port=Config.PORT)
         with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
             image_ids = calcimetry_api.get_filtered_images_id()
             print(len(image_ids))
@@ -95,7 +95,7 @@ class CalcimetryTest(unittest.TestCase):
 
     def test_vignette_from_cote(self):
         dim = 128
-        mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
+        mongo_info = MongoInfo(host=Config.HOST, port=Config.PORT)
         with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
             img = calcimetry_api.read_image(self.IMG_ID)
             measure = img.measurements[0]
@@ -109,7 +109,7 @@ class CalcimetryTest(unittest.TestCase):
             plt.show()
 
     def test_min_max_criteria(self):
-        mongo_info = MongoInfo(host=CalcimetryTest.HOST, port=CalcimetryTest.PORT)
+        mongo_info = MongoInfo(host=Config.HOST, port=Config.PORT)
         with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
             mini_maxi = calcimetry_api.get_min_max_criteria()
             print(mini_maxi)

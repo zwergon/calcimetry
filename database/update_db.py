@@ -14,7 +14,7 @@ def update_criteria(mongo_info, update=False):
     with CalcimetryAPI(mongo_info=mongo_info) as calci_api:
         image_ids = calci_api.get_filtered_images_id()
         for img_id in image_ids:
-            img = calci_api.read_image(image_id=img_id)
+            img = calci_api.read_image(image_id=img_id)q
             if img is not None:
                 #
                 if isnan(img.resolution):

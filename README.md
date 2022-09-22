@@ -3,6 +3,9 @@
 Pour l'estimation de la calcimétrie à partir d'une carotte de forage par Deep
 Learning.
 
+gitlab:user: gitlab+deploy-token-129
+gitlab:token: HowNfviEFhzktqq1-FPv
+
 # Instalation of libraries on the SandBox
 
 * Proxy server configuration
