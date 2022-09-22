@@ -49,3 +49,9 @@ class MongoAPI:
 
     def write_mesu_many(self, docs):
         self.db['measurements'].insert_many(docs)
+
+    def write_quality_one(self, doc):
+        self.db['quality'].insert_one(doc)
+
+    def write_quality_many(self, docs):
+        self.db['quality'].insert_many(docs)

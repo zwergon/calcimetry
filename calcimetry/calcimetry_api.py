@@ -12,6 +12,7 @@ import pandas as pd
 
 from calcimetry.carrot_img import CarrotImage
 from calcimetry.measurement import Measurement
+from calcimetry.quality import Quality
 from calcimetry.polyline import Polyline
 from calcimetry.mongo_api import MongoAPI, MongoInfo
 from calcimetry.pipelines import image_selection_pipeline, min_max_criteria
@@ -24,6 +25,7 @@ class CalcimetryAPI(MongoAPI):
     IMG_COL = 'images'
     JPG_COL = 'jpgs'
     MES_COL = 'measurements'
+    QUA_COL = 'quality'
     
 
     def __init__(self, mongo_info):
@@ -216,3 +218,22 @@ class CalcimetryAPI(MongoAPI):
             if '_id' in result:
                 del result['_id']
             return result
+
+    def get_quality(self, image_id):
+        """
+        Return image qualtiy information
+        :param image_id: ID of image
+        :return: quality metrics of image
+        """
+        quality = []
+        docs = self.db[self.QUA_COL].find({'ImageId': image_id })
+        for doc in docs:
+            quality.append(
+                Quality(
+                    doc['ImageId'],
+                    doc['focus'],
+                    doc['gradient'],
+                    doc['colours'],
+                    doc['brisque'])
+                    )
+        return quality[0]  # return the first and only entry
