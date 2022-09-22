@@ -2,31 +2,41 @@
 # based on this: https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Python.gitlab-ci.yml
 
 # Need a docker image that has conda pre-installed to make things easier
-image: continuumio/miniconda3:latest
+image: python:latest
 
 stages:
   - deploy
 
-# create the documentation (only on a tag), which involves installing the
-#  python environment and the other dependencies for the docker image.
-pages:
+package:
   stage: deploy
   tags:
     - Docker-1
-  before_script:
-    - apt-get update -q -y
-    - apt-get install -y build-essential
-    - conda install -c conda-forge mamba
-    - mamba env create -f environment.yml
-    - source activate ai.calcimetry
-    - pip install sphinx nbsphinx sphinx-rtd-theme furo
   script:
-    - cd docs ; make html
-    - echo "The site will be deployed to $CI_PAGES_URL"
-  after_script:
-    - mv docs/build/html/ ./public/
-  artifacts:
-    paths:
-      - public
-  only:
-    - tags
+    - pip install build twine
+    - python -m build
+    - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url https://gitlab.ifpen.fr/api/v4/projects/${CI_PROJECT_ID}/packages/pypi dist/*
+
+  
+# create the documentation (only on a tag), which involves installing the
+#  python environment and the other dependencies for the docker image.
+# pages:
+#   stage: deploy
+#   tags:
+#     - Docker-1
+#   before_script:
+#     - apt-get update -q -y
+#     - apt-get install -y build-essential
+#     - conda install -c conda-forge mamba
+#     - mamba env create -f environment.yml
+#     - source activate ai.calcimetry
+#     - pip install sphinx nbsphinx sphinx-rtd-theme furo
+#   script:
+#     - cd docs ; make html
+#     - echo "The site will be deployed to $CI_PAGES_URL"
+#   after_script:
+#     - mv docs/build/html/ ./public/
+#   artifacts:
+#     paths:
+#       - public
+#   only:
+#     - tags
