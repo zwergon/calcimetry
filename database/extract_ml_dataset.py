@@ -13,6 +13,7 @@ def extract_dataset(mongo_info, dim=128):
         for img_id in image_ids:
             img = calci_api.read_image(image_id=img_id)
             if img is not None:
+                img = img.to_resolution(0.035)
                 for m in img.measurements:
                     if img.k_arrow.empty:
                         continue
@@ -21,15 +22,21 @@ def extract_dataset(mongo_info, dim=128):
                         p_x, # get for this picture the position in pixel from this measure, shift of half of the size
                         img.k_arrow.p_y(p_x) # get on k_arrow line the position in pixel from this measure
                         )
-                    vignette = calci_api.read_vignette(img_id, center, dim=dim)
+                    vignette = img.vignette(center=center, dim=dim)
                     if vignette_id is not None:
                         img_byte_array = io.BytesIO()
                         vignette.save(img_byte_array, format='jpeg')
-                        fs.put(img_byte_array.getvalue(), filename=str(vignette_id), meta=m.val_1m)
+                        fs.put(img_byte_array.getvalue(), 
+                            filename=str(vignette_id), 
+                            meta= {
+                                "val_1m": m.val_1m,
+                                "ImageID": img_id
+                                }
+                            )
                         vignette_id += 1
     
 
 
 if __name__ == "__main__":
-    mongo_info = MongoInfo(host='localhost', port='27010')
+    mongo_info = MongoInfo(host='localhost', port='27017')
     extract_dataset(mongo_info=mongo_info)

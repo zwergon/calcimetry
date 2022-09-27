@@ -1,5 +1,7 @@
 from PIL import Image
 
+from calcimetry.polyline import Polyline
+
 Image.MAX_IMAGE_PIXELS = 933120000
 
 class CarrotImage:
@@ -65,14 +67,10 @@ class CarrotImage:
         w_extent = self.infos['w_extent']
         return round(px_extent[0] + (wx-w_extent[0])*(px_extent[1]-px_extent[0])/(w_extent[1]-w_extent[0]))
 
-    def vignette(self, dim=128, center = None, resolution=None):
-        if resolution is not None:
-            img = self.to_resolution(self.jpg)
-        else:
-            img = self.jpg
-
+    def vignette(self, dim=128, center = None):
+       
         if center is None:
-            w, h = img.size
+            w, h = self.jpg.size
             cx, cy = w // 2, h //2
         else:
             cx, cy = center[0], center[1]
@@ -83,8 +81,27 @@ class CarrotImage:
         right =  cx + half_dim
         bottom = cy + half_dim
 
-        vignette = img.crop( (left, top, right, bottom))
+        vignette = self.jpg.crop( (left, top, right, bottom))
+
         return vignette
 
+    def _update_infos(self, ratio):
+        infos = self.infos.copy()
+        px0, px1 = self.infos['px_extent']
+        infos['px_extent'] = (int(ratio*px0), int(ratio*px1))
+
+        for k in ['k_arrow', 'k_up', 'k_down']:
+            pts = [(int(ratio*t[0]), int(ratio*t[1])) for t in self.infos[k]]
+            infos[k] = Polyline(pts)
+
+        return infos
+
+
     def to_resolution(self, resolution):
-        return self.jpg
+        ratio = self.resolution / resolution
+        w, h = self.jpg.size
+        w *= ratio
+        h *= ratio
+        infos = self._update_infos(ratio)
+        jpg = self.jpg.resize((int(w),int(h)), Image.LANCZOS)
+        return CarrotImage(jpg, infos)

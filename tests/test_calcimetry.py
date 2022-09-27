@@ -2,14 +2,14 @@ import unittest
 from calcimetry.calcimetry_api import CalcimetryAPI
 from calcimetry.mongo_api import MongoInfo
 from calcimetry.measurement import Measurement
-from tests.config import Config
+from config import Config
 
 import matplotlib.pyplot as plt
 
 class CalcimetryTest(unittest.TestCase):
 
   
-    IMG_ID = 1412
+    IMG_ID = 580
 
     def test_read_image_info(self):
         mongo_info = MongoInfo(host=Config.HOST, port=Config.PORT)
@@ -85,11 +85,12 @@ class CalcimetryTest(unittest.TestCase):
             print(len(image_ids))
             image_ids = calcimetry_api.get_filtered_images_id(drillnames=drillnames)
             print(len(image_ids))
-            image_ids = calcimetry_api.get_filtered_images_id(cotes_min_max=cotes_min_max)
+            image_ids = calcimetry_api.get_filtered_images_id(cotemin=cotes_min_max[0], cotemax=cotes_min_max[1])
             print(len(image_ids))
             image_ids = calcimetry_api.get_filtered_images_id(
                 drillnames=drillnames,
-                cotes_min_max=cotes_min_max
+                cotemin=cotes_min_max[0], 
+                cotemax=cotes_min_max[1]
                 )
             print(image_ids)
 
@@ -113,7 +114,23 @@ class CalcimetryTest(unittest.TestCase):
         with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
             mini_maxi = calcimetry_api.get_min_max_criteria()
             print(mini_maxi)
-       
+
+    def test_resolution(self):
+        mongo_info = MongoInfo(host=Config.HOST, port=Config.PORT)
+        with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
+            img = calcimetry_api.read_image(self.IMG_ID)
+            print(img.resolution)
+
+            plt.figure(figsize=(12, 8), dpi=80)
+            #plt.imshow(img.jpg)
+            #if not img.k_arrow.empty:
+            #    arrow_line = draw_line(img.k_arrow)
+            #    plt.gca().add_patch(arrow_line)
+
+            zoomed_img = img.to_resolution(0.035)
+            print(zoomed_img.size)
+            plt.imshow(zoomed_img)
+            plt.show()
 
 
 if __name__ == '__main__':

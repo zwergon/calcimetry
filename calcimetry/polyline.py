@@ -3,14 +3,26 @@ import numpy as np
 
 class Polyline:
 
-    def __init__(self, pts) -> None:
+    def __init__(self, pts):
         self.empty = len(pts) == 0
-
+      
         self.x = np.zeros(len(pts))
         self.y = np.zeros(len(pts))
         for i, pt in enumerate(pts):
             self.x[i] = pt[0]
             self.y[i] = pt[1] 
+
+    def __iter__(self):
+        self.current = 0
+        return self
+
+    def __next__(self):
+        if self.current < self.x.shape[0]:
+            x, y = self.x[self.current], self.y[self.current]
+            self.current += 1
+            return x, y
+        else:
+            raise StopIteration
 
     @property
     def mean(self):

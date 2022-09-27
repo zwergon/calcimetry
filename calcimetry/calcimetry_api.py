@@ -65,7 +65,7 @@ class CalcimetryAPI(MongoAPI):
     def read_vignette(self, image_id, center=None, dim=128):
         """return a PIL Image object with only the part of CarrotImage image_id from size dimxdim"""
         img = self.read_image(image_id)
-        return img.vignette(dim, center, img.resolution)
+        return img.vignette(dim, center)
 
 
     def read_image_from_server(self, image_id):
@@ -157,9 +157,15 @@ class CalcimetryAPI(MongoAPI):
         return img_ids
 
 
-    def get_filtered_images_id(self, drillnames: list = None, #cotes_min_max: tuple=None):
-                               cotemin: float=None, cotemax: float=None, resomin: float=None, resomax: float=None,
-                               yratmin: float=None, yratmax: float=None, nmesmin: int=None, nmesmax: int=None):
+    def get_filtered_images_id(self, drillnames: list = None,  
+                                  cotemin: float=None, 
+                                  cotemax: float=None, 
+                                  resomin: float=None, 
+                                  resomax: float=None,
+                                  yratmin: float=None, 
+                                  yratmax: float=None, 
+                                  nmesmin: int=None, 
+                                  nmesmax: int=None):
         """
         This method return a list of "ImageId" that fit the following filter:
         - if all filters are None, return the whole ids for the image database

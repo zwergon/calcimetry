@@ -24,6 +24,6 @@ class ThumbnailAPI(MongoAPI):
             print(f"Jpg file {thu_id} not found.")
             return None
         jpg = Image.open(io.BytesIO(file.read()))
-        val_1m = file.meta
+        meta = file.meta
     
-        return jpg, val_1m
+        return jpg, meta
