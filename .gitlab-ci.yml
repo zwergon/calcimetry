@@ -15,8 +15,7 @@ package:
     - pip install build twine
     - python -m build
     - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url https://gitlab.ifpen.fr/api/v4/projects/${CI_PROJECT_ID}/packages/pypi dist/*
-  only:
-    - tags
+  
   
 # create the documentation (only on a tag), which involves installing the
 #  python environment and the other dependencies for the docker image.
