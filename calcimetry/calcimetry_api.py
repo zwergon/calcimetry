@@ -9,6 +9,7 @@ import re
 import gridfs
 from PIL import Image  
 import pandas as pd
+from matplotlib.pyplot import draw_if_interactive
 
 from calcimetry.carrot_img import CarrotImage
 from calcimetry.measurement import Measurement
@@ -158,7 +159,6 @@ class CalcimetryAPI(MongoAPI):
             
         return img_ids
 
-
     def get_filtered_images_id(self, drillnames: list = None,  
                                   cotemin: float=None, 
                                   cotemax: float=None, 
@@ -210,14 +210,14 @@ class CalcimetryAPI(MongoAPI):
 
         return drill_list
 
-
     def get_min_max_criteria(self):
-          docs = self.db[self.IMG_COL].aggregate(min_max_criteria())
-          if docs is not None:
+        docs = self.db[self.IMG_COL].aggregate(min_max_criteria())
+        if docs is not None:
             result = dict(next(docs))
             if '_id' in result:
                 del result['_id']
             return result
+        return None
 
     def get_quality(self, image_id):
         """
@@ -237,3 +237,48 @@ class CalcimetryAPI(MongoAPI):
                     doc['brisque'])
                     )
         return quality[0]  # return the first and only entry
+
+    def get_drill_name_for_image(self, image_id):
+        drill_list = []
+        docs = self.db[self.IMG_COL].find({'ImageId': image_id})
+        for doc in docs:
+            drill_list.append(doc['DrillName'])
+
+        return drill_list
+
+    def get_selected_images_df(self, drillnames: list = None):
+        """
+        Creates a panda dataframe from the "images" collection filtered by the given query to restrict to some image_id
+
+        -----------
+        Examples:
+            df = calcimetry_api.get_images_df(query={"DrillName": "KEY1207"})
+
+        for the whole dataframe
+            df = calcimetry_api.get_images_df()
+
+        """
+        if drillnames is None or drillnames == []:
+            return None
+
+        cursor = self.db[self.IMG_COL].find({"DrillName": {"$in": drillnames}})
+
+        # Expand the cursor and construct the DataFrame
+        df = pd.DataFrame(list(cursor))
+        if '_id' in df:
+            del df['_id']
+
+        return df
+
+    def get_measurements_list(self, imageids: list = None):
+        measurements = []
+        docs = self.db[self.MES_COL].find({"ImageId": {"$in": imageids}})
+        for doc in docs:
+            measurements.append(
+                Measurement(
+                    doc['MeasureId'],
+                    doc['CalciCote'],
+                    doc['CalciVals1m'],
+                    doc['CalciVals15m'])
+                    )
+        return measurements
