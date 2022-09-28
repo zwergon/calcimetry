@@ -29,7 +29,7 @@ class CalcimetryTest(unittest.TestCase):
     def test_read_image_from_server(self):
         mongo_info = MongoInfo(host=Config.HOST, port=Config.PORT)
         with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
-            img = calcimetry_api.read_image_from_server(self.IMG_ID)
+            img = calcimetry_api.read_image_from_server(1)
             print(f"resolution : {img.resolution}")
             plt.imshow(img.jpg)
             plt.show()
@@ -128,8 +128,8 @@ class CalcimetryTest(unittest.TestCase):
             #    plt.gca().add_patch(arrow_line)
 
             zoomed_img = img.to_resolution(0.035)
-            print(zoomed_img.size)
-            plt.imshow(zoomed_img)
+            print(zoomed_img.jpg.size)
+            plt.imshow(zoomed_img.jpg)
             plt.show()
 
 

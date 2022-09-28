@@ -103,5 +103,5 @@ class CarrotImage:
         w *= ratio
         h *= ratio
         infos = self._update_infos(ratio)
-        jpg = self.jpg.resize((int(w),int(h)), Image.LANCZOS)
+        jpg = self.jpg.resize((int(w),int(h)), Image.Resampling.LANCZOS)
         return CarrotImage(jpg, infos)
