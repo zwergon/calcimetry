@@ -1,7 +1,6 @@
 from cmath import isnan, nan
 from calcimetry.calcimetry_api import CalcimetryAPI
 from calcimetry.mongo_api import MongoInfo
-from calcimetry.carrot_img import CarrotImage
 from calcimetry.quality import Quality
 
 import matplotlib.pyplot as plt
@@ -77,5 +76,5 @@ def update_criteria(mongo_info, update=False):
 if __name__ == "__main__":
     mongo_info = MongoInfo(host='localhost', port='27010')
     #update_criteria(mongo_info=mongo_info)
-    #display_img(mongo_info, 2178)
-    update_quality(mongo_info=mongo_info, update=True)
+    display_img(mongo_info, 564)
+    #update_quality(mongo_info=mongo_info, update=True)

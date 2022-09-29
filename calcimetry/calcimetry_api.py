@@ -58,7 +58,7 @@ class CalcimetryAPI(MongoAPI):
         if file is None:
             print(f"Jpg file {image_id} not found.")
             return None
-        jpg = Image.open(io.BytesIO(file.read()))
+        jpg = Image.open(io.BytesIO(file.read())).convert('RGB')
         
         infos = self.get_infos(image_id)
         measurements = self.get_measurements(image_id)
@@ -87,20 +87,6 @@ class CalcimetryAPI(MongoAPI):
         measurements = self.get_measurements(image_id)
        
         return CarrotImage(jpg, infos = infos, measurements=measurements)
-
-
-    def get_measurements(self, image_id):
-        measurements = []
-        docs = self.db[self.MES_COL].find({'ImageId': image_id })
-        for doc in docs:
-            measurements.append( 
-                Measurement(
-                    doc['MeasureId'], 
-                    doc['CalciCote'], 
-                    doc['CalciVals1m'], 
-                    doc['CalciVals15m'])
-                    )
-        return measurements
 
 
     def get_images_df(self, query={}):
@@ -276,9 +262,13 @@ class CalcimetryAPI(MongoAPI):
         for doc in docs:
             measurements.append(
                 Measurement(
+                    doc['ImageId'],
                     doc['MeasureId'],
                     doc['CalciCote'],
                     doc['CalciVals1m'],
                     doc['CalciVals15m'])
                     )
         return measurements
+
+    def get_measurements(self, image_id):
+       return self.get_measurements_list(imageids=[image_id])

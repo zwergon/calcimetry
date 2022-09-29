@@ -1,14 +1,17 @@
 from calcimetry.mongo_api import MongoInfo
 from calcimetry.calcimetry_api import CalcimetryAPI
 from calcimetry.measurement import Measurement
+from calcimetry.thumbnail import Thumbnail
+from calcimetry.thumbnail_api import ThumbnailAPI
 import gridfs
 import io
+
+from calcimetry.thumbnail_api import ThumbnailAPI
 
 def extract_dataset(mongo_info, dim=128):
 
     vignette_id = 0
     with CalcimetryAPI(mongo_info=mongo_info) as calci_api:
-        fs = gridfs.GridFS(calci_api.db, collection='vignettes')
         image_ids = calci_api.get_filtered_images_id()
         for img_id in image_ids:
             img = calci_api.read_image(image_id=img_id)
@@ -24,17 +27,14 @@ def extract_dataset(mongo_info, dim=128):
                         )
                     vignette = img.vignette(center=center, dim=dim)
                     if vignette_id is not None:
-                        img_byte_array = io.BytesIO()
-                        vignette.save(img_byte_array, format='jpeg')
-                        fs.put(img_byte_array.getvalue(), 
-                            filename=str(vignette_id), 
-                            meta= {
-                                "val_1m": m.val_1m,
-                                "ImageID": img_id
-                                }
-                            )
+                        thumbnail = Thumbnail(vignette_id, vignette, measurement=m)
+                        th_dict = thumbnail.to_dict() 
+                        calci_api.db[ThumbnailAPI.THU_COL].update_one(
+                            filter={ "ThuId": vignette_id},
+                            update={"$set": th_dict},
+                            upsert=True)
                         vignette_id += 1
-    
+                       
 
 
 if __name__ == "__main__":

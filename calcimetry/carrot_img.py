@@ -67,10 +67,10 @@ class CarrotImage:
         w_extent = self.infos['w_extent']
         return round(px_extent[0] + (wx-w_extent[0])*(px_extent[1]-px_extent[0])/(w_extent[1]-w_extent[0]))
 
-    def vignette(self, dim=128, center = None):
+    def vignette(self, dim=128, center = None) -> Image:
        
+        w, h = self.jpg.size
         if center is None:
-            w, h = self.jpg.size
             cx, cy = w // 2, h //2
         else:
             cx, cy = center[0], center[1]
@@ -80,6 +80,17 @@ class CarrotImage:
         top = cy - half_dim
         right =  cx + half_dim
         bottom = cy + half_dim
+
+        # avoid to crop outside of the main carrot image.
+        if left < 0:
+            right -= left
+            left = 0
+        
+        margin_right = w - right - 1
+        if margin_right < 0:
+            left += margin_right
+            right = w - 1 
+
 
         vignette = self.jpg.crop( (left, top, right, bottom))
 

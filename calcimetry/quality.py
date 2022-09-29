@@ -11,6 +11,7 @@ import numpy as np
 from sklearn.cluster import KMeans
 from collections import Counter
 
+from PIL import Image
 from calcimetry.mongo_api import MongoAPI, MongoInfo
 
 class Quality:
@@ -70,7 +71,7 @@ class Quality:
         ordered_colors = [center_colors[i].tolist() for i in counts.keys()]
         return ordered_colors
 
-    def __init__(self, image, n_clusters=3):
+    def __init__(self, image: Image, n_clusters=3):
         self.image = image
         self.focus = -1
         self.gradient = {'min': -1,
@@ -127,6 +128,15 @@ class Quality:
             "colours": self.colours,
             "brisque": self.brisque
         }
+
+    @classmethod
+    def from_dict(cls, q_dict):
+        quality = cls(None)
+        quality.focus = q_dict['focus']
+        quality.gradient = q_dict['gradient']
+        quality.colours = q_dict['colours']
+        quality.brisque = q_dict['brisque']
+        return quality
 
     def __repr__(self) -> str:
         str = "Quality\n"

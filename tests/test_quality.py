@@ -6,7 +6,7 @@ from config import Config
 
 class QualityTest(unittest.TestCase):
     
-    IMG_ID =0
+    IMG_ID = 0
 
     def test_quality(self):
         mongo_info = MongoInfo(host=Config.HOST, port=Config.PORT)

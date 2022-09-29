@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 class CalcimetryTest(unittest.TestCase):
 
   
-    IMG_ID = 580
+    IMG_ID = 0
 
     def test_read_image_info(self):
         mongo_info = MongoInfo(host=Config.HOST, port=Config.PORT)
@@ -130,6 +130,22 @@ class CalcimetryTest(unittest.TestCase):
             zoomed_img = img.to_resolution(0.035)
             print(zoomed_img.jpg.size)
             plt.imshow(zoomed_img.jpg)
+            plt.show()
+
+    def test_vignette_outside(self):
+        dim = 128
+        mongo_info = MongoInfo(host=Config.HOST, port=Config.PORT)
+        with CalcimetryAPI(mongo_info=mongo_info) as calcimetry_api:
+            img = calcimetry_api.read_image(self.IMG_ID)
+            print(img.jpg.size)
+            px =  3200
+            center = (
+                px, # get for this picture the position in pixel from this measure, shift of half of the size
+                img.k_arrow.p_y(px) # get on k_arrow line the position in pixel from this measure
+                )
+            vignette = img.vignette(center=center, dim=dim)
+            print(vignette.size)
+            plt.imshow(vignette)
             plt.show()
 
 
