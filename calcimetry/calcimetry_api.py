@@ -153,7 +153,12 @@ class CalcimetryAPI(MongoAPI):
                                   yratmin: float=None, 
                                   yratmax: float=None, 
                                   nmesmin: int=None, 
-                                  nmesmax: int=None):
+                                  nmesmax: int=None,
+                                  focmin: int=None,
+                                  focmax: int=None,
+                                  brimin: int=None,
+                                  brimax: int=None
+                               ):
         """
         This method return a list of "ImageId" that fit the following filter:
         - if all filters are None, return the whole ids for the image database
@@ -162,7 +167,8 @@ class CalcimetryAPI(MongoAPI):
         img_ids = []
 
         testNone = drillnames is None and cotemin is None and cotemax is None and resomin is None and \
-                   resomax is None and yratmin is None and yratmax is None and nmesmin is None and nmesmax is None
+                   resomax is None and yratmin is None and yratmax is None and nmesmin is None and \
+                   nmesmax is None and focmin is None and focmax is None and brimin is None and brimax is None
 
         # if no filter is given return the whole list of image ids.
         if testNone: # drillnames is None and cotes_min_max is None:
@@ -178,7 +184,11 @@ class CalcimetryAPI(MongoAPI):
                         yratmin=yratmin,
                         yratmax=yratmax,
                         nmesmin=nmesmin,
-                        nmesmax=nmesmax
+                        nmesmax=nmesmax,
+                        focmin=focmin,
+                        focmax=focmax,
+                        brimin=brimin,
+                        brimax=brimax
                         #cotes_min_max=cotes_min_max
                         )
                 )
