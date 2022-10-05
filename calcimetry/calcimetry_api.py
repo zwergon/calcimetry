@@ -172,7 +172,8 @@ class CalcimetryAPI(MongoAPI):
 
         # if no filter is given return the whole list of image ids.
         if testNone: # drillnames is None and cotes_min_max is None:
-            docs = self.db[self.IMG_COL].find({})
+            #docs = self.db[self.IMG_COL].find({})
+            return []
         else:
             docs = self.db[self.IMG_COL].aggregate(
                     image_selection_pipeline(
@@ -282,3 +283,18 @@ class CalcimetryAPI(MongoAPI):
 
     def get_measurements(self, image_id):
        return self.get_measurements_list(imageids=[image_id])
+
+
+    def get_measurement_from_id(self, measure_id):
+        measurements = []
+        docs = self.db[self.MES_COL].find({"MeasureId": measure_id})
+        for doc in docs:
+            measurements.append(
+                Measurement(
+                    doc['ImageId'],
+                    doc['MeasureId'],
+                    doc['CalciCote'],
+                    doc['CalciVals1m'],
+                    doc['CalciVals15m'])
+                    )
+        return measurements
