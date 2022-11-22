@@ -9,7 +9,6 @@ import re
 import gridfs
 from PIL import Image  
 import pandas as pd
-from matplotlib.pyplot import draw_if_interactive
 
 from calcimetry.carrot_img import CarrotImage
 from calcimetry.measurement import Measurement
@@ -277,7 +276,8 @@ class CalcimetryAPI(MongoAPI):
                     doc['MeasureId'],
                     doc['CalciCote'],
                     doc['CalciVals1m'],
-                    doc['CalciVals15m'])
+                    doc['CalciVals15m'],
+                    doc['quality'])
                     )
         return measurements
 

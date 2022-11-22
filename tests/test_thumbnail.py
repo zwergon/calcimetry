@@ -15,6 +15,7 @@ class TestThumbnailAPI(unittest.TestCase):
             thumbnail = thumb_api.read(self.THU_ID)
             print(f"val_1m: {thumbnail.measurement.val_1m}")
             print(f"brisque: {thumbnail.quality.brisque}")
+            print(f"measure {thumbnail.measurement.measure_id}")
             print(f"image_id {thumbnail.image_id}")
             plt.imshow(thumbnail.jpg)
             plt.show()

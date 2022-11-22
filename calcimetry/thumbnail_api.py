@@ -32,7 +32,8 @@ class ThumbnailAPI(MongoAPI):
                                         doc['MeasureId'],
                                         doc['CalciCote'],
                                         doc['CalciVals1m'],
-                                        doc['CalciVals15m']
+                                        doc['CalciVals15m'],
+                                        doc['quality']
                                         )
             
         return thumbnail

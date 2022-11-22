@@ -70,11 +70,10 @@ def update_criteria(mongo_info, update=False):
                             }
                         }
                     )
-               
 
 
 if __name__ == "__main__":
     mongo_info = MongoInfo(host='localhost', port='27010')
     #update_criteria(mongo_info=mongo_info)
-    display_img(mongo_info, 564)
+    display_img(mongo_info, 10)
     #update_quality(mongo_info=mongo_info, update=True)
