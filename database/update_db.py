@@ -2,6 +2,7 @@ from cmath import isnan, nan
 from calcimetry.calcimetry_api import CalcimetryAPI
 from calcimetry.mongo_api import MongoInfo
 from calcimetry.quality import Quality
+from calcimetry.measurement import Measurement
 
 import matplotlib.pyplot as plt
 
@@ -70,6 +71,21 @@ def update_criteria(mongo_info, update=False):
                             }
                         }
                     )
+
+
+def update_measure_note(mongo_info, measure_id, note, update=False):
+    with CalcimetryAPI(mongo_info=mongo_info) as calci_api:
+        measure = calci_api.get_measurement_from_id(measure_id)[0]
+        if measure is not None:
+            if update:
+                calci_api.db[CalcimetryAPI.MES_COL].update_one(
+                    filter={"MeasureId": measure_id},
+                    update={
+                        "$set": {
+                            "quality": note,
+                        }
+                    }
+                )
 
 
 if __name__ == "__main__":
