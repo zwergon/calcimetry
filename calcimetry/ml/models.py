@@ -1,39 +1,31 @@
 import os.path
 
 from torchvision import models
+from torchvision.models import ResNet18_Weights, DenseNet169_Weights
 import re
 import torch
 import torch.nn as nn
 from clearml import Task
 
 
-def load_pretrained_model(model, pretrained_filename):
+def load_weights(name):
 
-    # '.'s are no longer allowed in module names, but previous _DenseLayer
-    # has keys 'norm.1', 'relu.1', 'conv.1', 'norm.2', 'relu.2', 'conv.2'.
-    # They are also in the checkpoints in model_urls. This pattern is used
-    # to find such keys.
-    pattern = re.compile(
-        r"^(.*denselayer\d+\.(?:norm|relu|conv))\.((?:[12])\.(?:weight|bias|running_mean|running_var))$"
-    )
-
-    model_path = os.path.dirname(pretrained_filename)
-    file_name = os.path.basename(pretrained_filename)
-
-    state_dict = torch.hub.load_state_dict_from_url('http://dummy', model_dir=model_path, file_name=file_name)
-    for key in list(state_dict.keys()):
-        res = pattern.match(key)
-        if res:
-            new_key = res.group(1) + res.group(2)
-            state_dict[new_key] = state_dict[key]
-            del state_dict[key]
-    model.load_state_dict(state_dict)
-
-def create_model(name):
     if name == "resnet18":
-        model = models.resnet18(pretrained=False)
+        weights = ResNet18_Weights.DEFAULT
     elif name == "densenet169":
-        model = models.densenet169(pretrained=False)
+        weights = DenseNet169_Weights.DEFAULT
+    else:
+        weights = None
+
+    return weights
+
+
+
+def create_model(name, weights=None):
+    if name == "resnet18":
+        model = models.resnet18(weights=weights)
+    elif name == "densenet169":
+        model = models.densenet169(weights=weights)
     else:
         raise Exception(f"model {name} is not useable")
 
@@ -56,12 +48,13 @@ def add_regression_layer(name, model, dropout):
         raise Exception(f"model {name} is not useable")
 
 
-def get_model(name, dropout=0.9, pretrained_filename=None, device=None):
+def get_model(name, dropout=0.9, pretrained=True, device=None):
 
-    model = create_model(name)
-    if pretrained_filename is not None:
-        load_pretrained_model(model, pretrained_filename)
+    if pretrained:
+        weights = load_weights(name)
 
+    model = create_model(name, weights=weights)
+    
     add_regression_layer(name, model, dropout)
 
     if device is not None:

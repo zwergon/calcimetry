@@ -28,6 +28,8 @@ class AndrasLogger(ClearMLLogger):
         self.console = setup_logger("Andras")
 
 
+
+
 def get_dataflow(config, logger):
 
     train_dataset, val_dataset = generate_datasets(
@@ -38,8 +40,9 @@ def get_dataflow(config, logger):
 
     n_elt_train = len(train_dataset)
     img, calci = train_dataset[n_elt_train // 2]
+    print(img.shape)
     fig, ax = plt.subplots(nrows=1, ncols=1)
-    ax.imshow(img[0, :, :],cmap='gray')
+    ax.imshow(img[0, :, :])
     logger.clearml_logger.report_matplotlib_figure(
         title="Train DataSet",
         series=str(calci),
@@ -50,12 +53,12 @@ def get_dataflow(config, logger):
     train_loader = DataLoader(
         train_dataset,
         batch_size=config['batch_size'],
-        num_workers=4
+        num_workers=1
     )
     val_loader = DataLoader(
         val_dataset,
         batch_size=config['batch_size'],
-        num_workers=4
+        num_workers=1
     )
 
     config["num_iters_per_epoch"] = len(train_loader)
@@ -110,7 +113,7 @@ def create_trainer(config, model, optimizer, criterion, lr_scheduler, logger: An
 
 def run_validation(engine, evaluator, loader, tag, logger):
     state = evaluator.run(loader)
-    for m in ['ms1',  "l1"]:
+    for m in ['mse',  "l1"]:
         logger.report_scalar(tag, m, iteration=engine.state.iteration, value=state.metrics[m])
 
 
@@ -119,6 +122,9 @@ def training(config, device):
     manual_seed(config['seed'])
 
     logger = AndrasLogger(project_name="Carrots", task_name="training")
+    if not config['with_clearml']:
+        logger.set_bypass_mode(True)
+
 
     train_loader, val_loader = get_dataflow(config, logger)
 
@@ -209,7 +215,7 @@ if __name__ == '__main__':
          # dataset
         'host': 'localhost',
         'port': 27017,
-        'batch_size': 32,
+        'batch_size': 4,
         'train_val_ratio': .8,
          # learning
         'lr': 1e-6,
@@ -221,13 +227,16 @@ if __name__ == '__main__':
         "with_scheduler": False,
         'num_epochs': 3,
 
-        'modelname': "resnet18"
+        'modelname': "resnet18",
+
+        'with_clearml': True
     }
 
-    task = Task.init(
-        project_name="Andras",
-        task_name="training"
-    )
-    task.connect(config)
+    if config['with_clearml']:
+        task = Task.init(
+            project_name="Andras",
+            task_name="training"
+        )
+        task.connect(config)
 
     training(config=config, device=device)
