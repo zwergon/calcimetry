@@ -1,17 +1,11 @@
-import logging
-
 import matplotlib.pyplot as plt
-import random
-from calcimetry.ml import generate_datasets
-from calcimetry.ml.models import get_model
-import os
-import torch
+import numpy as np
+
 from torch import nn, optim
 from torch.utils.data import DataLoader
-from clearml import Task
-import matplotlib.pyplot as plt
 from ignite.engine import Events, create_supervised_trainer, create_supervised_evaluator
 from ignite.metrics import Loss,  MeanAbsoluteError
+from ignite.contrib.metrics.regression import R2Score
 from ignite.handlers import Checkpoint, PiecewiseLinear
 from ignite.utils import manual_seed, setup_logger
 from ignite.contrib.handlers.clearml_logger import (
@@ -20,14 +14,17 @@ from ignite.contrib.handlers.clearml_logger import (
     global_step_from_engine,
 )
 
+from calcimetry.ml import generate_datasets
+from calcimetry.ml.models import get_model
+from calcimetry.ml.predict import PredictEngine
+
+
 
 class AndrasLogger(ClearMLLogger):
 
     def __init__(self, **kwargs):
         ClearMLLogger.__init__(self, **kwargs)
         self.console = setup_logger("Andras")
-
-
 
 
 def get_dataflow(config, logger):
@@ -97,6 +94,32 @@ def get_lr_scheduler(config, optimizer):
     return lr_scheduler
 
 
+def predict(engine, evaluator: PredictEngine, loader, logger: AndrasLogger, metrics):
+    evaluator.initialize()
+    evaluator.run(loader)
+    y_pred, y = evaluator.state.output
+
+    logger.console.info(f"iteration {engine.state.epoch}")
+    for k, v in metrics.items():
+        val = max(0., evaluator.state.metrics[k])
+        logger.clearml_logger.report_scalar("predicted/truth", k, iteration=engine.state.epoch, value=val)
+
+    predicted = y_pred.cpu().numpy()
+    original = y.cpu().numpy()
+
+    scatter2d = np.hstack( (predicted, original) )
+
+    logger.clearml_logger.report_scatter2d(
+        series='scatter',
+        title=f"predicted/truth",
+        iteration=engine.state.epoch,
+        xaxis="predicted",
+        yaxis=f"truth",
+        scatter=scatter2d,
+        mode='markers'
+    )
+
+
 def create_trainer(config, model, optimizer, criterion, lr_scheduler, logger: AndrasLogger, device):
     trainer = create_supervised_trainer(
         model,
@@ -121,7 +144,7 @@ def training(config, device):
 
     manual_seed(config['seed'])
 
-    logger = AndrasLogger(project_name="Carrots", task_name="training")
+    logger = AndrasLogger(project_name="Andras", task_name="training")
     if not config['with_clearml']:
         logger.set_bypass_mode(True)
 
@@ -130,6 +153,7 @@ def training(config, device):
 
     model = get_model(
         config['modelname'],
+        dropout=config['dropout'],
         device=device
     )
     optimizer = get_optimizer(config, model)
@@ -175,12 +199,32 @@ def training(config, device):
             logger.clearml_logger
         )
 
+    test_metrics = {
+        'r2': R2Score(),
+        # 'canberra': CanberraMetric(),
+        # 'manhattan': ManhattanDistance(),
+        # 'max_absolute': MaximumAbsoluteError()
+    }
 
-    logger.attach_opt_params_handler(
-        trainer,
-        event_name=Events.ITERATION_COMPLETED(every=100),
-        optimizer=optimizer
+    test_evaluator = PredictEngine(model)
+    for k, v in test_metrics.items():
+        v.attach(test_evaluator, k)
+    
+    trainer.add_event_handler(
+        Events.EPOCH_COMPLETED(every=1),
+        predict,
+        test_evaluator,
+        val_loader,
+        logger,
+        test_metrics
     )
+
+
+    # logger.attach_opt_params_handler(
+    #     trainer,
+    #     event_name=Events.ITERATION_COMPLETED(every=100),
+    #     optimizer=optimizer
+    # )
 
     # to_save = {
     #     #"trainer": trainer,
@@ -202,41 +246,3 @@ def training(config, device):
     # )
 
     trainer.run(train_loader, max_epochs=config['num_epochs'])
-
-
-if __name__ == '__main__':
-    os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
-
-    # set up device
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-    config = {
-        'seed': 234,
-         # dataset
-        'host': 'localhost',
-        'port': 27017,
-        'batch_size': 4,
-        'train_val_ratio': .8,
-         # learning
-        'lr': 1e-6,
-        'momentum': 0.9,
-        "weight_decay": 1e-4,
-
-         # lr_scheduler
-        "num_warmup_epochs": 1,
-        "with_scheduler": False,
-        'num_epochs': 3,
-
-        'modelname': "resnet18",
-
-        'with_clearml': True
-    }
-
-    if config['with_clearml']:
-        task = Task.init(
-            project_name="Andras",
-            task_name="training"
-        )
-        task.connect(config)
-
-    training(config=config, device=device)

@@ -1,31 +1,40 @@
 import os.path
 
-from torchvision import models
-from torchvision.models import ResNet18_Weights, DenseNet169_Weights
 import re
 import torch
 import torch.nn as nn
-from clearml import Task
+from clearml import Dataset
+from functools import partial
+
+from torchvision import models
+from torchvision.models._api import Weights
+from torchvision._internally_replaced_utils import load_state_dict_from_url
+from torchvision.transforms._presets import ImageClassification
 
 
 def load_weights(name):
 
+    model_path = Dataset.get(
+        dataset_name="Andras",
+        dataset_project="models"
+    ).get_local_copy()
+
     if name == "resnet18":
-        weights = ResNet18_Weights.DEFAULT
+        weights = load_state_dict_from_url(url="http://dummy", 
+                                           file_name= os.path.join(model_path, "resnet18-f37072fd.pth")) 
     elif name == "densenet169":
-        weights = DenseNet169_Weights.DEFAULT
+        weights = load_state_dict_from_url(url="http://dummy", 
+                                           file_name=  os.path.join(model_path, "densenet169-b2777c0a.pth"))
     else:
         weights = None
 
     return weights
 
-
-
-def create_model(name, weights=None):
+def create_model(name):
     if name == "resnet18":
-        model = models.resnet18(weights=weights)
+        model = models.resnet18(weights=None)
     elif name == "densenet169":
-        model = models.densenet169(weights=weights)
+        model = models.densenet169(weights=None)
     else:
         raise Exception(f"model {name} is not useable")
 
@@ -50,10 +59,13 @@ def add_regression_layer(name, model, dropout):
 
 def get_model(name, dropout=0.9, pretrained=True, device=None):
 
+    model = create_model(name)
+
     if pretrained:
         weights = load_weights(name)
+        model.load_state_dict(weights)
 
-    model = create_model(name, weights=weights)
+    
     
     add_regression_layer(name, model, dropout)
 
