@@ -1,20 +1,11 @@
 import torch
 from calcimetry.ml.train import training
+from calcimetry.ml.config import Config
 from clearml import Task
 
 
-def init(config):
-    if config['with_clearml']:
-        task = Task.init(
-            project_name="Andras",
-            task_name="training"
-        )
-        task.connect(config)
+from ignite.contrib.handlers.clearml_logger import ClearMLLogger
 
-
-def close(config):
-    if config['with_clearml']:
-        Task.close()
 
 if __name__ == '__main__':
     import os
@@ -24,14 +15,15 @@ if __name__ == '__main__':
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     config = {
-        'seed': 234,
+        'seed': 1,
          # dataset
         'host': 'localhost',
-        'port': 27010,
-        'batch_size': 4,
+        'port': 27017,
+        'batch_size': 14,
         'train_val_ratio': .8,
 
          # learning
+        'optimizer': 'sgd',
         'lr': 1e-6,
         'momentum': 0.9,
         "weight_decay": 1e-4,
@@ -42,17 +34,27 @@ if __name__ == '__main__':
         "num_warmup_epochs": 1,
         
 
-        'num_epochs': 3,
-        'modelname': "resnet18",
-
-        'with_clearml': True
+        'num_epochs': 6,
+        #'modelname': "resnet18",
+        'modelname': "densenet169",
+        'save_best': False
     }
 
-    init(config)
+
+    task = Task.init(
+        project_name=Config.PROJECT,
+        task_name=Config.TASK
+    )
+    task.connect(config)
+
+    # To utilize other loggers we need to change the object here
+    clearml_logger = ClearMLLogger(
+        project_name=Config.PROJECT, 
+        task_name=Config.TASK
+        ) 
+
     
     try:
-        training(config=config, device=device)
+        training(config=config, device=device, logger=clearml_logger)
     except Exception as er:
         print(er)
-        close(config)
-      

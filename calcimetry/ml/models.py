@@ -19,16 +19,31 @@ def load_weights(name):
         dataset_project="models"
     ).get_local_copy()
 
+     # '.'s are no longer allowed in module names, but previous _DenseLayer
+    # has keys 'norm.1', 'relu.1', 'conv.1', 'norm.2', 'relu.2', 'conv.2'.
+    # They are also in the checkpoints in model_urls. This pattern is used
+    # to find such keys.
+    pattern = re.compile(
+        r"^(.*denselayer\d+\.(?:norm|relu|conv))\.((?:[12])\.(?:weight|bias|running_mean|running_var))$"
+    )
+
     if name == "resnet18":
-        weights = load_state_dict_from_url(url="http://dummy", 
+        state_dict = load_state_dict_from_url(url="http://dummy", 
                                            file_name= os.path.join(model_path, "resnet18-f37072fd.pth")) 
     elif name == "densenet169":
-        weights = load_state_dict_from_url(url="http://dummy", 
+        state_dict = load_state_dict_from_url(url="http://dummy", 
                                            file_name=  os.path.join(model_path, "densenet169-b2777c0a.pth"))
     else:
-        weights = None
+        state_dict = None
 
-    return weights
+    for key in list(state_dict.keys()):
+        res = pattern.match(key)
+        if res:
+            new_key = res.group(1) + res.group(2)
+            state_dict[new_key] = state_dict[key]
+            del state_dict[key]
+
+    return state_dict
 
 def create_model(name):
     if name == "resnet18":
@@ -57,16 +72,16 @@ def add_regression_layer(name, model, dropout):
         raise Exception(f"model {name} is not useable")
 
 
-def get_model(name, dropout=0.9, pretrained=True, device=None):
+def get_model(config, device=None, pretrained=True):
 
+    name = config['modelname']
+    dropout = config['dropout']
     model = create_model(name)
 
     if pretrained:
         weights = load_weights(name)
         model.load_state_dict(weights)
 
-    
-    
     add_regression_layer(name, model, dropout)
 
     if device is not None:

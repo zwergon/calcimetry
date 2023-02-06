@@ -5,7 +5,7 @@ from torch import nn, optim
 from torch.utils.data import DataLoader
 from ignite.engine import Events, create_supervised_trainer, create_supervised_evaluator
 from ignite.metrics import Loss,  MeanAbsoluteError
-from ignite.contrib.metrics.regression import R2Score
+from ignite.contrib.metrics.regression import R2Score, CanberraMetric
 from ignite.handlers import Checkpoint, PiecewiseLinear
 from ignite.utils import manual_seed, setup_logger
 from ignite.contrib.handlers.clearml_logger import (
@@ -19,12 +19,6 @@ from calcimetry.ml.models import get_model
 from calcimetry.ml.predict import PredictEngine
 
 
-
-class AndrasLogger(ClearMLLogger):
-
-    def __init__(self, **kwargs):
-        ClearMLLogger.__init__(self, **kwargs)
-        self.console = setup_logger("Andras")
 
 
 def get_dataflow(config, logger):
@@ -40,7 +34,7 @@ def get_dataflow(config, logger):
     print(img.shape)
     fig, ax = plt.subplots(nrows=1, ncols=1)
     ax.imshow(img[0, :, :])
-    logger.clearml_logger.report_matplotlib_figure(
+    logger.report_matplotlib_figure(
         title="Train DataSet",
         series=str(calci),
         figure=fig
@@ -59,19 +53,31 @@ def get_dataflow(config, logger):
     )
 
     config["num_iters_per_epoch"] = len(train_loader)
+    logger.report_text(f".. # of train samples {len(train_dataset)}")
+    logger.report_text(f".. # of validation samples {len(val_dataset)}")
+    logger.report_text(f".. # iters per epoch {config['num_iters_per_epoch']}")
 
     return train_loader, val_loader
 
 
 def get_optimizer(config, model):
 
-    optimizer = optim.SGD(
-        model.parameters(),
-        lr=config["lr"],
-        momentum=config["momentum"]
-        #weight_decay=config["weight_decay"],
-        #nesterov=True,
-    )
+    if config['optimizer'] == 'sgd':
+        optimizer = optim.SGD(
+            model.parameters(),
+            lr=config["lr"],
+            momentum=config["momentum"]
+            #weight_decay=config["weight_decay"],
+            #nesterov=True,
+        )
+    elif config['optimizer'] == 'adam':
+        optimizer = optim.Adam(
+            model.parameters(),
+            lr=config['lr']
+        )
+    else:
+        raise Exception(f"unknown optimizer {config['optimizer']}")
+
     return optimizer
 
 
@@ -94,22 +100,22 @@ def get_lr_scheduler(config, optimizer):
     return lr_scheduler
 
 
-def predict(engine, evaluator: PredictEngine, loader, logger: AndrasLogger, metrics):
+def predict(engine, evaluator: PredictEngine, loader, logger, metrics):
     evaluator.initialize()
     evaluator.run(loader)
     y_pred, y = evaluator.state.output
 
-    logger.console.info(f"iteration {engine.state.epoch}")
+    logger.report_text(f".. Prediction: {engine.state.epoch}")
     for k, v in metrics.items():
         val = max(0., evaluator.state.metrics[k])
-        logger.clearml_logger.report_scalar("predicted/truth", k, iteration=engine.state.epoch, value=val)
+        logger.report_scalar( k, "Predicted", iteration=engine.state.epoch, value=val)
 
     predicted = y_pred.cpu().numpy()
     original = y.cpu().numpy()
 
     scatter2d = np.hstack( (predicted, original) )
 
-    logger.clearml_logger.report_scatter2d(
+    logger.report_scatter2d(
         series='scatter',
         title=f"predicted/truth",
         iteration=engine.state.epoch,
@@ -120,14 +126,14 @@ def predict(engine, evaluator: PredictEngine, loader, logger: AndrasLogger, metr
     )
 
 
-def create_trainer(config, model, optimizer, criterion, lr_scheduler, logger: AndrasLogger, device):
+def create_trainer(config, model, optimizer, criterion, lr_scheduler, logger, device):
     trainer = create_supervised_trainer(
         model,
         optimizer,
         criterion,
         device=device
     )
-    trainer.logger = logger.console
+    
     if config['with_scheduler']:
         trainer.add_event_handler(Events.ITERATION_STARTED, lr_scheduler)
 
@@ -135,27 +141,21 @@ def create_trainer(config, model, optimizer, criterion, lr_scheduler, logger: An
 
 
 def run_validation(engine, evaluator, loader, tag, logger):
+    
     state = evaluator.run(loader)
+    logger.report_text(f".. {tag} - {engine.state.iteration} - mse: {state.metrics['mse']}")
     for m in ['mse',  "l1"]:
         logger.report_scalar(tag, m, iteration=engine.state.iteration, value=state.metrics[m])
 
 
-def training(config, device):
+def training(config, logger, device):
 
     manual_seed(config['seed'])
 
-    logger = AndrasLogger(project_name="Andras", task_name="training")
-    if not config['with_clearml']:
-        logger.set_bypass_mode(True)
+    train_loader, val_loader = get_dataflow(config, logger.clearml_logger)
 
+    model = get_model(config, device=device)
 
-    train_loader, val_loader = get_dataflow(config, logger)
-
-    model = get_model(
-        config['modelname'],
-        dropout=config['dropout'],
-        device=device
-    )
     optimizer = get_optimizer(config, model)
 
     criterion = get_criterion(device)
@@ -171,7 +171,7 @@ def training(config, device):
         optimizer,
         criterion,
         lr_scheduler,
-        logger,
+        logger.clearml_logger,
         device
     )
 
@@ -181,11 +181,8 @@ def training(config, device):
     }
 
     train_evaluator = create_supervised_evaluator(model, metrics=metrics, device=device)
-    train_evaluator.logger = logger.console
-
     val_evaluator = create_supervised_evaluator(model, metrics=metrics, device=device)
-    val_evaluator.logger = logger.console
-
+   
     for tag, evaluator, loader in [
         ("Training Metrics", train_evaluator, train_loader),
         ("Validation Metrics", val_evaluator, val_loader)
@@ -201,7 +198,7 @@ def training(config, device):
 
     test_metrics = {
         'r2': R2Score(),
-        # 'canberra': CanberraMetric(),
+        'canberra': CanberraMetric(),
         # 'manhattan': ManhattanDistance(),
         # 'max_absolute': MaximumAbsoluteError()
     }
@@ -211,38 +208,30 @@ def training(config, device):
         v.attach(test_evaluator, k)
     
     trainer.add_event_handler(
-        Events.EPOCH_COMPLETED(every=1),
+        Events.EPOCH_COMPLETED(every=3),
         predict,
         test_evaluator,
         val_loader,
-        logger,
+        logger.clearml_logger,
         test_metrics
     )
 
+    if config['save_best']:
+        to_save = {
+            "trainer": trainer,
+            "model": model
+        }
 
-    # logger.attach_opt_params_handler(
-    #     trainer,
-    #     event_name=Events.ITERATION_COMPLETED(every=100),
-    #     optimizer=optimizer
-    # )
-
-    # to_save = {
-    #     #"trainer": trainer,
-    #     "model": model
-    #     #"optimizer": optimizer,
-    #     #"lr_scheduler": lr_scheduler,
-    # }
-
-    # best_model_handler = Checkpoint(
-    #     to_save,
-    #     ClearMLSaver(logger, output_uri="s3://minio.10.68.0.250.nip.io:80/clearml"),
-    #     filename_prefix="best",
-    #     n_saved=2,
-    #     global_step_transform=global_step_from_engine(trainer)
-    # )
-    # val_evaluator.add_event_handler(
-    #     Events.COMPLETED,
-    #     best_model_handler,
-    # )
+        best_model_handler = Checkpoint(
+            to_save,
+            ClearMLSaver(logger, output_uri="s3://minio.10.68.0.250.nip.io:80/clearml"),
+            filename_prefix="best",
+            n_saved=2,
+            global_step_transform=global_step_from_engine(trainer)
+        )
+        val_evaluator.add_event_handler(
+            Events.COMPLETED,
+            best_model_handler,
+        )
 
     trainer.run(train_loader, max_epochs=config['num_epochs'])

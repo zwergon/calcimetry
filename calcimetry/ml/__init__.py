@@ -9,14 +9,13 @@ __all__ = [
     "generate_datasets"
 ]
 
-def generate_datasets(host="localhost", port=27010, train_val_ratio=.8, seed=1):
+def generate_datasets(host="localhost", port=27010, train_val_ratio=.8):
 
-    np.random.seed(seed=seed)
     mongo_info = MongoInfo(host, port)
     with ThumbnailAPI(mongo_info=mongo_info) as thumb_api:
         n_total = thumb_api.size()
         indices = np.arange(n_total)
-        np.random.shuffle(indices)
+        #np.random.shuffle(indices)
         n_train = train_val_ratio *  n_total
 
         trains = []
