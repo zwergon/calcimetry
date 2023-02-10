@@ -11,12 +11,14 @@ from torchvision.models._api import Weights
 from torchvision._internally_replaced_utils import load_state_dict_from_url
 from torchvision.transforms._presets import ImageClassification
 
+from calcimetry.ml.config import Config
+
 
 def load_weights(name):
 
     model_path = Dataset.get(
-        dataset_name="Andras",
-        dataset_project="models"
+        dataset_name=Config.MODELS,
+        dataset_project=Config.PROJECT
     ).get_local_copy()
 
      # '.'s are no longer allowed in module names, but previous _DenseLayer
@@ -33,6 +35,9 @@ def load_weights(name):
     elif name == "densenet169":
         state_dict = load_state_dict_from_url(url="http://dummy", 
                                            file_name=  os.path.join(model_path, "densenet169-b2777c0a.pth"))
+    elif name == "alexnet":
+        state_dict = load_state_dict_from_url(url="http://dummy", 
+                                           file_name=  os.path.join(model_path, "alexnet-owt-7be5be79.pth"))
     else:
         state_dict = None
 
@@ -48,8 +53,12 @@ def load_weights(name):
 def create_model(name):
     if name == "resnet18":
         model = models.resnet18(weights=None)
+        print(model)
     elif name == "densenet169":
         model = models.densenet169(weights=None)
+    elif name == "alexnet":
+        model = models.alexnet(weights=None)
+        print(model)
     else:
         raise Exception(f"model {name} is not useable")
 
@@ -67,6 +76,17 @@ def add_regression_layer(name, model, dropout):
         model.classifier = nn.Sequential(
             nn.Dropout(dropout),
             nn.Linear(num_ftrs, 1)
+        )
+    elif name == "alexnet":
+        model.classifier = nn.Sequential(
+            nn.Dropout(),
+            nn.Linear(in_features=9216, out_features=4096, bias=True),
+            nn.ReLU(inplace=True),
+            nn.Dropout(),
+            nn.Linear(in_features=4096, out_features=1024, bias=True),
+            nn.ReLU(inplace=True),
+            nn.Dropout(dropout),
+            nn.Linear(in_features=1024, out_features=1, bias=True)
         )
     else:
         raise Exception(f"model {name} is not useable")

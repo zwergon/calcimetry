@@ -8,11 +8,22 @@ from torchvision import transforms
 
 class CalciDataset(Dataset):
 
+    """
+    According to https://pytorch.org/hub/pytorch_vision_alexnet/
+    All pre-trained models (resnet, densenet, alexnet) expect input images normalized in the same way, 
+    i.e. mini-batches of 3-channel RGB images of shape (3 x H x W), 
+    where H and W are expected to be at least 224. 
+    The images have to be loaded in to a range of [0, 1] 
+    and then normalized using mean = [0.485, 0.456, 0.406] and std = [0.229, 0.224, 0.225].
+
+    """
+
     @staticmethod
     def _default_transform():
         return  transforms.Compose([
                 transforms.ConvertImageDtype(torch.float),
-                transforms.Resize(224)
+                transforms.Resize(224),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
             ])
 
 

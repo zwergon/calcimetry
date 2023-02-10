@@ -36,7 +36,8 @@ if __name__ == '__main__':
 
         'num_epochs': 6,
         #'modelname': "resnet18",
-        'modelname': "densenet169",
+        #'modelname': "densenet169",
+        'modelname': "alexnet",
         'save_best': False
     }
 
@@ -58,3 +59,5 @@ if __name__ == '__main__':
         training(config=config, device=device, logger=clearml_logger)
     except Exception as er:
         print(er)
+
+    print(task.get_last_scalar_metrics())
