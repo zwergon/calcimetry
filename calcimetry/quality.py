@@ -12,7 +12,7 @@ from sklearn.cluster import KMeans
 from collections import Counter
 
 from PIL import Image
-from calcimetry.mongo_api import MongoAPI, MongoInfo
+from calcimetry.mongo_api import MongoAPI
 
 class Quality:
 

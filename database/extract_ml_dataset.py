@@ -38,5 +38,5 @@ def extract_dataset(mongo_info, dim=128):
 
 
 if __name__ == "__main__":
-    mongo_info = MongoInfo(host='localhost', port='27017')
+    mongo_info = MongoInfo()
     extract_dataset(mongo_info=mongo_info)

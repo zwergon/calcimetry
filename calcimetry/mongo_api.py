@@ -1,20 +1,18 @@
 from pymongo import MongoClient
+from calcimetry.config import Config
 
 class MongoInfo:
 
     UNKNOWN_ID = int(-1)
 
-    # client = MongoClient('mongodb://irlinv-dvbacr16:7017')
-    HOST = 'irlinv-dvbacr16'
-    PORT = 7017
 
     def __init__(self,
-                 host=HOST,
-                 port=PORT,
+                 config = Config(),
                  db_name='calcimetry'
                  ):
-        self.host = host
-        self.port = port
+        
+        self.host = config.MONGO_HOST
+        self.port = config.MONGO_PORT
         self.db_name = db_name
 
     @property
@@ -24,7 +22,7 @@ class MongoInfo:
 
 class MongoAPI:
 
-    def __init__(self, mongo_info):
+    def __init__(self, mongo_info=MongoInfo()):
         self.mongo_info = mongo_info
         self.client = MongoClient(self.mongo_info.mongo_client)
         self.db = self.client[self.mongo_info.db_name]

@@ -12,7 +12,7 @@ class ThumbnailAPI(MongoAPI):
 
     THU_COL = 'vignettes'
 
-    def __init__(self, mongo_info: MongoInfo):
+    def __init__(self, mongo_info: MongoInfo = MongoInfo()):
         super().__init__(mongo_info)
         
     def size(self):

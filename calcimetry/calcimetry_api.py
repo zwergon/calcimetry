@@ -28,7 +28,7 @@ class CalcimetryAPI(MongoAPI):
     QUA_COL = 'quality'
     
 
-    def __init__(self, mongo_info):
+    def __init__(self, mongo_info=MongoInfo()):
         super().__init__(mongo_info)
         self.img_path = server.init()
         #print(self.img_path)

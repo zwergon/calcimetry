@@ -89,7 +89,7 @@ def update_measure_note(mongo_info, measure_id, note, update=False):
 
 
 if __name__ == "__main__":
-    mongo_info = MongoInfo(host='localhost', port='27010')
+    mongo_info = MongoInfo()
     #update_criteria(mongo_info=mongo_info)
     display_img(mongo_info, 10)
     #update_quality(mongo_info=mongo_info, update=True)

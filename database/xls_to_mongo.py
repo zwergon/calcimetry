@@ -4,6 +4,7 @@ import pandas as pd
 from calcimetry.mongo_api import MongoInfo
 from calcimetry.calcimetry_api import CalcimetryAPI
 import gridfs
+from calcimetry.config import Config
 
 def to_polyline(param):
     if "{" in str(param) and "}" in str(param):
@@ -90,7 +91,16 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    mongo_info = MongoInfo(host=args.host, port=args.port)
+    config = Config.load_from_dict(
+        {
+            "mongo": {
+                "host": args.host,
+                "port": args.port
+            }
+        }
+    )
+
+    mongo_info = MongoInfo(config=config)
 
     drill_names = get_drill_names(root_dir=args.dir)
     print(f"there are {len(drill_names)} to import from directories")
