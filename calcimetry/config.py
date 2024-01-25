@@ -5,7 +5,7 @@ class Config(object, metaclass=MetaSingleton):
     CONFIG = {
         "mongo": {
             "host": "localhost",
-            "port": 27017
+            "port": 27010
         }
     }
 

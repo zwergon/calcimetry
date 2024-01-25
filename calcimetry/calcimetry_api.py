@@ -113,6 +113,7 @@ class CalcimetryAPI(MongoAPI):
 
        
         infos = {
+            "filename": doc['FileName'],
             "image_id": image_id,
             "px_extent": (doc['px0'], doc['px1']),
             'w_extent': (doc['Cote0'], doc['Cote1']),
@@ -312,3 +313,6 @@ class CalcimetryAPI(MongoAPI):
                         }
                     }
                 )
+
+        
+   

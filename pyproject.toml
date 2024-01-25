@@ -1,0 +1,24 @@
+[build-system]
+
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+
+name = "Calcimetry"
+version = "0.1"
+
+authors = [
+  { name="Jean-François Lecomte", email="jean-francois.lecomte@ifpen.fr" },
+  { name="John Armitage", email="john.armitage@ifpen.fr" },
+  { name="Nina Khvoenkova", email="nina.khvoenkova@ifpen.fr" },
+  { name="Renaud Divies", email="renaud.divies@ifpen.fr" }
+]
+
+description = "module pour gérér les données Calcimetries de l andra"
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
+[tool.setuptools]
+packages = ["calcimetry"]
