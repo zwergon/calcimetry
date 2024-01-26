@@ -25,6 +25,8 @@ services:
         environment:
           - MONGO_PORT=27017
           - MONGO_HOST=mongo
+        depends_on:
+          - mongo
 
 
 networks:

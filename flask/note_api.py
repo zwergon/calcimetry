@@ -54,10 +54,7 @@ def get_pipeline(collection):
             }
         }, 
         { 
-            "$out" : { 
-                "db" : "calcimetry", 
-                "coll" : collection
-            }
+            "$out" : collection 
         }
     ]
         
