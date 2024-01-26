@@ -301,18 +301,6 @@ class CalcimetryAPI(MongoAPI):
                     )
         return measurements
     
-    def update_measure_note(self, measure_id, note, update=False):
-        measure = self.get_measurement_from_id(measure_id)[0]
-        if measure is not None:
-            if update:
-                self.db[self.MES_COL].update_one(
-                    filter={"MeasureId": measure_id},
-                    update={
-                        "$set": {
-                            "quality": note,
-                        }
-                    }
-                )
-
+   
         
    

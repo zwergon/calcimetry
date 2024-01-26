@@ -1,7 +1,8 @@
 
 from calcimetry.mongo_api import MongoAPI, MongoInfo
 
-big_query =  [
+def get_pipeline(collection):
+    return [
         { 
             "$lookup" : { 
                 "from" : "vignettes", 
@@ -17,11 +18,12 @@ big_query =  [
         }, 
         { 
             "$project" : { 
-               "meas_vig.ThuId" : 1.0, 
+                "meas_vig.ThuId" : 1.0, 
+                "quality" : 1.0, 
                 "MeasureId" : 1.0, 
                 "ImageId" : 1.0
             }
-        },
+        }, 
         { 
             "$lookup" : { 
                 "from" : "images", 
@@ -44,38 +46,61 @@ big_query =  [
             "$group" : { 
                 "_id" : "$DrillName", 
                 "thumbnails" : { 
-                    "$push" : "$meas_vig.ThuId"
+                    "$push" : { 
+                        "ThuID" : "$meas_vig.ThuId", 
+                        "quality" : "$quality"
+                    }
                 }
             }
-        },
+        }, 
         { 
-            "$out": {
-             "db": "calcimetry",
-             "coll": "thumbnails_by_drill"
+            "$out" : { 
+                "db" : "calcimetry", 
+                "coll" : collection
             }
         }
+    ]
         
-    ] 
-
 class NoteAPI(MongoAPI):
 
     IMG_COL = 'images'
     JPG_COL = 'jpgs'
     MES_COL = 'measurements'
     QUA_COL = 'quality'
+    THU_COL = "thumbnails_by_drill"
 
     
     def __init__(self, mongo_info=MongoInfo()):
         super().__init__(mongo_info)
 
-    def get_thumbnails_by_drill(self):
-       
+    def update_thumbnails(self):
+        print("update_thumbnails")
+        self.db.drop_collection(NoteAPI.THU_COL)
+        self.db[NoteAPI.MES_COL].aggregate(get_pipeline(NoteAPI.THU_COL))
 
+    def get_thumbnails_by_drill(self, all:bool = False):
         results = {}
-        docs = self.db["thumbnails_by_drill"].find({})
+        docs = self.db[NoteAPI.THU_COL].find({})
         for d in docs:
-            results[d['_id']] = d['thumbnails']
+            thumbnails = d['thumbnails']
+            todo = []
+            for t in thumbnails:
+                if all or t['quality'] == 10:
+                   todo.append(t['ThuID'])
+            if len(todo) > 0:
+                results[d['_id']] = todo
         return results
+    
+    def update_note(self, measure_id, note):
+        self.db[self.MES_COL].update_one(
+            filter={"MeasureId": measure_id},
+            update={
+                "$set": {
+                    "quality": note,
+                }
+            }
+        )
+
 
     
 if __name__ == "__main__":

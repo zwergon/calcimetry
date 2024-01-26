@@ -16,7 +16,16 @@
     <header class="d-flex justify-content-center py-3">
         <ul class="nav nav-pills">
             <li><a title='previous' class="btn btn-outline-secondary" href="?idx={{idx - 1}}"> &lt;</a></li>
-            <li><button id="resize-btn" title="resize" class="btn btn-primary mx-3"> Resize </button></li>
+            <li>
+               
+                    
+                <button id="home-btn" title="home" class="btn btn-primary mx-3" onclick="location.href='./'">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-fill" viewBox="0 0 16 16">
+                        <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L8 2.207l6.646 6.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293z"/>
+                        <path d="m8 3.293 6 6V13.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5V9.293z"/>
+                        </svg>    
+                </button>
+            </li>
             <li><a title='next' class="btn btn-outline-secondary" href="?idx={{idx + 1}}"> &gt;</a></li>
         </ul>
     </header>
@@ -25,7 +34,9 @@
     <div>
         <img id="image" width="100%" title="{{filename}}" src="data:image/jpeg;base64,{{ image }}">
     </div>
-    <form class="flex align-items-center py-2" method="post" action="{{url_for('display_rock', drill=drill)}}">
+    <div class="d-flex justify-content-center py-3">
+    <button id="resize-btn" title="resize" class="btn btn-primary mx-3"  > Resize </button>
+    <form class="flex align-items-center py-2" method="post" action="{{url_for('note', drill=drill)}}">
         <input value="{{idx}}" name="index" hidden>
         <input 
         class="text-center" 
@@ -34,6 +45,7 @@
             <output class="text-end" style="width: 1rem;" id="rangeValue" name="rangeValue" for="rangeInput">{{quality}}</output>
             <button class="btn btn-primary mx-3" id="update-btn" title="Update" > Update </button>
     </form>
+    </div>
       
 </div>
 <script>
