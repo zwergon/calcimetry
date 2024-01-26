@@ -15,7 +15,7 @@ from PIL import ImageDraw
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'oh, my secret'
 
-@app.route("/")
+@app.route("/calci_note/")
 def index():
 
     session['idx'] = 0 # reset idx when we go back home
@@ -57,7 +57,7 @@ def encode_img(img: CarrotImage, measurement):
     return base64.b64encode(data.getvalue())
 
 
-@app.route("/<drill>", methods=['GET', 'POST'])
+@app.route("/calci_note/<drill>", methods=['GET', 'POST'])
 def note(drill):
 
     all = session.get('what', False)
