@@ -67,7 +67,7 @@ class NoteAPI(MongoAPI):
     JPG_COL = 'jpgs'
     MES_COL = 'measurements'
     QUA_COL = 'quality'
-    THU_COL = "thumbnails_by_drill"
+    THU_COL = 'thumbnails_by_drill'
 
     
     def __init__(self, mongo_info=MongoInfo()):

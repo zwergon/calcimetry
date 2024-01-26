@@ -1,0 +1,32 @@
+version: '3.5'
+
+services:
+    mongo:
+        image: harbor.ifpen.fr/library/mongo:4.0
+        container_name: mongo
+        volumes:
+          - /work/lecomtje/data/mongo:/data/db
+        ports:
+          - 27017:27017
+        expose:
+          - 27017
+        networks:
+          - calcimetry
+
+    notes:
+        image: calci-note
+        container_name: calci_note
+        ports:
+          - 5000:5000
+        expose:
+          - 5000
+        networks:
+          - calcimetry
+        environment:
+          - MONGO_PORT=27017
+          - MONGO_HOST=mongo
+
+
+networks:
+  calcimetry:
+        
