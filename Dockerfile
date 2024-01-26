@@ -30,7 +30,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install 
 COPY requirements.txt /tmp/
 RUN pip install -r /tmp/requirements.txt
 
-RUN pip install git+https://lecomtje:${PASSWORD}@gitlab.ifpen.fr/tellus/andra/ai.calcimetry.git@wip_v_1_0
+ARG PASSWORD
+RUN pip install git+https://lecomtje:$PASSWORD@gitlab.ifpen.fr/tellus/andra/ai.calcimetry.git@wip_v_1_0
 
 RUN mkdir /app
 COPY flask/ /app/
@@ -38,7 +39,7 @@ WORKDIR /app
 
 EXPOSE 5000
 
-CMD [ "gunicorn", "-b 0.0.0.0:5000", "flask_app:app"]
+CMD [ "gunicorn", "-b 0.0.0.0:5000", "flaskapp:app"]
 
 
 
