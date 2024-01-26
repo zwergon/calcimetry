@@ -1,31 +1,12 @@
-import json
+import os
 from calcimetry.meta_singleton import MetaSingleton
 
 class Config(object, metaclass=MetaSingleton):
-    CONFIG = {
-        "mongo": {
-            "host": "localhost",
-            "port": 27010
-        }
-    }
+   
+    def __init__(self) -> None:
+        self.MONGO_HOST = os.environ.get('MONGO_HOST', 'localhost')
+        self.MONGO_PORT = os.environ.get('MONGO_PORT', 27010)
+        print(self)
 
-    @staticmethod
-    def load_from_dict(dict):
-        Config.CONFIG.update(dict)
-        
-    
-    @staticmethod
-    def load_from_file(ini_file=None):
-        if ini_file is not None:
-            with open(ini_file, "r") as fp:
-                dict = json.loads(fp.read())
-                Config.load_from_dict(dict)
-
-    @property
-    def MONGO_HOST(self):
-        return self.CONFIG['mongo']['host']
-
-    @property
-    def MONGO_PORT(self):
-        return self.CONFIG['mongo']['port']
-    
+    def __repr__(self) -> str:
+        return f"MongoConnection : {self.MONGO_HOST}:{self.MONGO_PORT}"
