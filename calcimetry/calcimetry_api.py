@@ -302,5 +302,20 @@ class CalcimetryAPI(MongoAPI):
         return measurements
     
    
+    def get_all_measurements(self):
+        measurements = []
+        docs = self.db[self.MES_COL].find({})
+        for doc in docs:
+            measurements.append(
+                Measurement(
+                    doc['ImageId'],
+                    doc['MeasureId'],
+                    doc['CalciCote'],
+                    doc['CalciVals1m'],
+                    doc['CalciVals15m'],
+                    doc['quality'])
+                    )
+        return measurements
+
         
    
