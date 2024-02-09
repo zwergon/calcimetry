@@ -12,11 +12,9 @@ import pandas as pd
 
 from calcimetry.carrot_img import CarrotImage
 from calcimetry.measurement import Measurement
-from calcimetry.quality import Quality
 from calcimetry.polyline import Polyline
 from calcimetry.mongo_api import MongoAPI, MongoInfo
 from calcimetry.pipelines import image_selection_pipeline, min_max_criteria
-import calcimetry.use_server as server
 
 
 
@@ -30,9 +28,8 @@ class CalcimetryAPI(MongoAPI):
 
     def __init__(self, mongo_info=MongoInfo()):
         super().__init__(mongo_info)
-        self.img_path = server.init()
-        #print(self.img_path)
-
+       
+       
 
     def read_image_info(self, image_id):
         """
@@ -68,24 +65,6 @@ class CalcimetryAPI(MongoAPI):
         """return a PIL Image object with only the part of CarrotImage image_id from size dimxdim"""
         img = self.read_image(image_id)
         return img.vignette(dim, center)
-
-
-    def read_image_from_server(self, image_id):
-        """
-        load a jpeg image from its imageid using flask webservice on islin-hdmpas1 : slow
-
-        returns:
-            a _CarrotImage_ object
-        """
-        doc = self.db[self.IMG_COL].find_one({'ImageId': image_id })
-        drill_name = doc['DrillName']
-        filename = f"{self.img_path}/calci_photos/{drill_name}/Photos/{doc['FileName']}"
-        jpg = server.get_file(filename)
-
-        infos = self.get_infos(image_id)
-        measurements = self.get_measurements(image_id)
-       
-        return CarrotImage(jpg, infos = infos, measurements=measurements)
 
 
     def get_images_df(self, query={}):
@@ -216,24 +195,6 @@ class CalcimetryAPI(MongoAPI):
             return result
         return None
 
-    def get_quality(self, image_id):
-        """
-        Return image qualtiy information
-        :param image_id: ID of image
-        :return: quality metrics of image
-        """
-        quality = []
-        docs = self.db[self.QUA_COL].find({'ImageId': image_id })
-        for doc in docs:
-            quality.append(
-                Quality(
-                    doc['ImageId'],
-                    doc['focus'],
-                    doc['gradient'],
-                    doc['colours'],
-                    doc['brisque'])
-                    )
-        return quality[0]  # return the first and only entry
 
     def get_drill_name_for_image(self, image_id):
         drill_list = []

@@ -7,7 +7,7 @@ from werkzeug.exceptions import NotFound
 from note_api import NoteAPI
 from calcimetry.config import Config
 from calcimetry.calcimetry_api import CalcimetryAPI
-from calcimetry.thumbnail_api import ThumbnailAPI
+from calcimetry.dataset_api import DatasetsAPI
 from calcimetry.carrot_img import CarrotImage
 
 from PIL import ImageDraw
@@ -91,7 +91,7 @@ def note(drill):
  
     thu_id = thumbnails[idx]
     
-    with ThumbnailAPI() as thumbnail_api:
+    with DatasetsAPI() as thumbnail_api:
         thumbnail = thumbnail_api.read(thu_id=thu_id)
         measurement = thumbnail.measurement
         session['measure_id'] = measurement.measure_id

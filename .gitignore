@@ -7,4 +7,5 @@ __pycache__
 .vscode
 Calcimetry.egg-info
 data
+tests/calci-ds*
 

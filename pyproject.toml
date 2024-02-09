@@ -21,4 +21,4 @@ description = "module pour gérér les données Calcimetries de l andra"
 dependencies = {file = ["requirements.txt"]}
 
 [tool.setuptools]
-packages = ["calcimetry"]
+packages = ["calcimetry", "ai"]

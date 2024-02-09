@@ -2,11 +2,11 @@ from calcimetry.mongo_api import MongoInfo
 from calcimetry.calcimetry_api import CalcimetryAPI
 from calcimetry.measurement import Measurement
 from calcimetry.thumbnail import Thumbnail
-from calcimetry.thumbnail_api import ThumbnailAPI
+from calcimetry.dataset_api import DatasetsAPI
 import gridfs
 import io
 
-from calcimetry.thumbnail_api import ThumbnailAPI
+from calcimetry.dataset_api import DatasetsAPI
 
 def extract_dataset(mongo_info, dim=128):
 
@@ -29,7 +29,7 @@ def extract_dataset(mongo_info, dim=128):
                     if vignette_id is not None:
                         thumbnail = Thumbnail(vignette_id, vignette, measurement=m)
                         th_dict = thumbnail.to_dict() 
-                        calci_api.db[ThumbnailAPI.THU_COL].update_one(
+                        calci_api.db[DatasetsAPI.DATASET_COL].update_one(
                             filter={ "ThuId": vignette_id},
                             update={"$set": th_dict},
                             upsert=True)

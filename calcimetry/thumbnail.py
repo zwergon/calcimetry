@@ -1,5 +1,4 @@
 
-from calcimetry.quality import Quality
 from calcimetry.measurement import Measurement
 from PIL import Image
 import base64
@@ -7,20 +6,22 @@ import io
 
 class Thumbnail:
 
-    def __init__(self, thu_id, jpg: Image, quality: Quality = None, measurement: Measurement = None ):
-        self.thu_id = thu_id
+    def __init__(self, version, jpg: Image, bbox, measurement: Measurement = None ):
+        self.version = version
         self.jpg = jpg 
+        self.bbox = bbox
         self.measurement = measurement
-        if quality is None:
-            self.quality = Quality(jpg)
-            self.quality.compute()
-        else:
-            self.quality = quality
 
     @property
     def image_id(self):
         if self.measurement is not None:
             return self.measurement.image_id
+        return -1
+    
+    @property
+    def val_1m(self):
+        if self.measurement is not None:
+            return self.measurement.val_1m
         return -1
         
     @staticmethod
@@ -37,21 +38,18 @@ class Thumbnail:
      
     @classmethod
     def from_dict(cls, th_dict):
-        thu_id = th_dict['ThuId']
-        if 'measurement' in th_dict:
-            m = th_dict['measurement']
-        else:
-            m = None
+        version = th_dict['version']
+        bbox = th_dict['bbox']
+        m = Measurement.from_dict(th_dict['measurement'])
         jpg = Thumbnail.from_base64(th_dict['jpg/base64'])
-        return cls(thu_id, jpg, quality=Quality.from_dict(th_dict['quality']), measurement=m)
+        return cls(version=version, jpg=jpg, bbox=bbox, measurement=m)
 
 
     def to_dict(self):
-        measure_id =  self.measurement.measure_id if self.measurement.measure_id is not None else -1
         return {
-          "ThuId": self.thu_id,
-          "quality": self.quality.to_dict(),
-          "measurement": measure_id,
+          "version": self.version,
+          "measurement": self.measurement.to_dict(),
+          "bbox": self.bbox,
           "jpg/base64": Thumbnail.to_base64(self.jpg)
         }
 
