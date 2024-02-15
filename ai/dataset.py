@@ -1,6 +1,6 @@
 import os.path
 import torch
-import json
+import random
 
 from typing import Any, Callable, Optional, Tuple
 
@@ -10,6 +10,8 @@ from PIL import Image
 from torchvision.datasets.vision import VisionDataset
 from torchvision.datasets.utils import check_integrity
 
+
+from iapytoo.utils.config import Config
 
 from calcimetry.dataset_api import DatasetsAPI
 
@@ -32,7 +34,7 @@ class CalciDataset(VisionDataset):
 
     def __init__(
         self,
-        root: str,
+        config: Config,
         train: bool = True,
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
@@ -42,9 +44,10 @@ class CalciDataset(VisionDataset):
         port: int = 27017
     ) -> None:
 
-        super().__init__(root, transform=transform, target_transform=target_transform)
+        super().__init__(config.dataset, transform=transform, target_transform=target_transform)
         self.host = host
         self.port = port
+        self.config = config
         if version == "default":
             self.version = CalciDataset.default
         else:
@@ -63,8 +66,16 @@ class CalciDataset(VisionDataset):
      
         data_file = os.path.join(self.root, self.base_folder, "dataset.pkl")
         with open(data_file, 'rb') as f:
-            self.data = np.load(f)
-            self.targets = torch.from_numpy(np.load(f))
+            data = np.load(f)
+            targets = np.load(f)
+
+        data = np.transpose(data, (3, 2, 1, 0))
+        targets = np.expand_dims(targets, axis=1)
+        print(data.shape, targets.shape)
+
+        self.indices = self._random_split_indices(targets.shape[0])
+        self.data = data[self.indices].astype(np.float32) / 255.
+        self.targets = targets[self.indices].astype(np.float32)
      
     def __getitem__(self, index: int) -> Tuple[Any, Any]:
         """
@@ -74,7 +85,7 @@ class CalciDataset(VisionDataset):
         Returns:
             tuple: (image, target) where target is index of the target class.
         """
-        img, target = self.data[:, :, :, index], self.targets[index]
+        img, target = self.data[index], self.targets[index]
             
         if self.transform is not None:
             img = self.transform(img)
@@ -85,7 +96,21 @@ class CalciDataset(VisionDataset):
         return img, target
 
     def __len__(self) -> int:
-        return self.data.shape[3]
+        return self.data.shape[0]
+    
+    def _random_split_indices(self, size):
+        random.seed(self.config.seed) # ensure train/test are disjoint
+        train_size = self.config.ratio_train_test*size
+        indices = list(range(size))
+        random.shuffle(indices)
+        train_indices = []
+        while len(train_indices) < train_size:
+            train_indices.append(indices.pop())
+
+        if self.train:
+            return train_indices
+        else:
+            return indices
 
     def _check_integrity(self) -> bool:
         root = self.root
