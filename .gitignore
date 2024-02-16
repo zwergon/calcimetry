@@ -8,4 +8,5 @@ __pycache__
 Calcimetry.egg-info
 data
 tests/calci-ds*
+mlruns/
 

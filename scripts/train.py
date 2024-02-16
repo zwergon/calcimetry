@@ -1,23 +1,16 @@
-
 from torch.utils.data import DataLoader
 
 from iapytoo.train.models import ModelFactory
 from iapytoo.utils.config import Config
 from iapytoo.utils.arguments import parse_args
 from iapytoo.train.training import Training
-from iapytoo.train.metrics_collection import MetricCreator
 from ai.dataset import CalciDataset
 from ai.models import CalciResnet
+from iapytoo.predictions.plotters import ScatterPlotter
+from iapytoo.metrics.creators import R2Creator
 
-from torchmetrics import R2Score
+import numpy as np
 
-class R2Creator(MetricCreator):
-
-    def __init__(self):
-        super().__init__("r2")
-        
-    def create(self):
-        return R2Score()
 
 if __name__ == "__main__":
 
@@ -28,18 +21,13 @@ if __name__ == "__main__":
 
     # INPUT Parameters
     config = Config.create_from_args(args)
-    config.type = 'resnet18'
+    config.type = "resnet18"
 
     metric_creators = [R2Creator()]
 
     Training.seed(config)
-    
-    train_dataset = CalciDataset(
-       config, 
-       download=True, 
-       version="1.0", 
-       train=True
-    )
+
+    train_dataset = CalciDataset(config, download=True, version="1.0", train=True)
     train_loader = DataLoader(
         train_dataset,
         batch_size=config.batch_size,
@@ -47,12 +35,7 @@ if __name__ == "__main__":
         num_workers=config.num_workers,
     )
 
-    test_dataset = CalciDataset(
-        config, 
-        download=True, 
-        version="1.0", 
-        train=False
-    )
+    test_dataset = CalciDataset(config, download=True, version="1.0", train=False)
     test_loader = DataLoader(
         test_dataset,
         batch_size=config.batch_size,
@@ -61,9 +44,6 @@ if __name__ == "__main__":
     )
 
     training = Training(
-        config,
-        metric_creators = metric_creators)
+        config, metric_creators=metric_creators, prediction_plotter=ScatterPlotter()
+    )
     training.fit(train_loader=train_loader, valid_loader=test_loader)
-
-
-    
