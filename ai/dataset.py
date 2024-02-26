@@ -14,7 +14,7 @@ from torchvision.datasets.utils import check_integrity
 from iapytoo.utils.config import Config
 
 from calcimetry.dataset_api import DatasetsAPI
-
+from ai.normalize import Normalize
 
 class CalciDataset(VisionDataset):
     """Calcimetry Dataset.
@@ -36,15 +36,13 @@ class CalciDataset(VisionDataset):
         self,
         config: Config,
         train: bool = True,
-        transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None,
         download: bool = False,
         version: str = "default",
         host: str = 'localhost',
         port: int = 27017
     ) -> None:
 
-        super().__init__(config.dataset, transform=transform, target_transform=target_transform)
+        super().__init__(config.dataset, target_transform=Normalize())
         self.host = host
         self.port = port
         self.config = config
