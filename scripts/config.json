@@ -1,0 +1,15 @@
+{
+    "project": "calcimetry",
+    "run": "deep",
+    "tracking_uri": null,
+    "tqdm": true,
+    "normalization": true,
+    "n_steps_by_batch": 10,
+    "ratio_train_test": 0.9,
+    "num_workers": 2,
+    "loss": "MSE",
+    "optimizer": "Adam",
+    "cuda": true,
+    "type": "resnet18",
+    "seed": 1
+}
