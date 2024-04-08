@@ -59,8 +59,8 @@ if __name__ == "__main__":
 
     fig, axs = plt.subplots(nrows=1, ncols=1)
     fig.suptitle("Calcimetry actual versus predicted")
-    axs.scatter(train_pred.actual, train_pred.predicted)
-    axs.scatter(test_pred.actual, test_pred.predicted)
-    axs.set_xlabel("actual")
-    axs.set_ylabel("predicted")
+    axs.scatter(train_pred.predicted, train_pred.actual)
+    axs.scatter(test_pred.predicted, test_pred.actual)
+    axs.set_xlabel("predicted")
+    axs.set_ylabel("actual")
     plt.show()

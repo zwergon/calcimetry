@@ -10,6 +10,6 @@
     "loss": "MSE",
     "optimizer": "Adam",
     "cuda": true,
-    "type": "resnet18",
+    "type": "vgg",
     "seed": 1
 }

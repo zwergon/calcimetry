@@ -28,6 +28,7 @@ class CalciDataset(VisionDataset):
     files_list = {
         "1.0": [("dataset.pkl", "e614103141a608563f5a0c2a9aaf68f7")],
         "1.1": [("dataset.pkl", "ec13f8aa1d7f76fb350635d229293178")],
+        "1.2": [("dataset.pkl", "4efa410fe3829d680ebb59b0a44a3694")],
     }
 
     @staticmethod
