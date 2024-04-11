@@ -1,0 +1,16 @@
+{
+    "project": "calci-tune-1.1",
+    "tracking_uri": "/work/lecomtje/Repositories/calcimetry/mlruns",
+    "dataset": "/work/lecomtje/Repositories/calcimetry/calci_ds/1.1",
+    "epochs": 200,
+    "run": "deep",
+    "tqdm": false,
+    "normalization": true,
+    "n_steps_by_batch": 10,
+    "ratio_train_test": 0.9,
+    "num_workers": 2,
+    "loss": "MSE",
+    "optimizer": "Adam",
+    "cuda": true,
+    "seed": 1
+}

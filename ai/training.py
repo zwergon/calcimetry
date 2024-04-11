@@ -5,7 +5,7 @@ from iapytoo.predictions.plotters import ScatterPlotter
 from iapytoo.metrics.creators import R2Creator
 from iapytoo.dataset.scaling import Scaling
 
-from ai.models import CalciResnet, VGG
+from ai.models import CalciResnet12, CalciResnet18, VGG
 
 
 class CalciTraining(Training):
@@ -21,5 +21,6 @@ class CalciTraining(Training):
             y_scaling=Scaling.create("min_max", CalciTraining.stats, ["Calcimetry"]),
         )
         factory = ModelFactory()
-        factory.register_model("resnet18", CalciResnet)
+        factory.register_model("resnet12", CalciResnet12)
+        factory.register_model("resnet18", CalciResnet18)
         factory.register_model("vgg", VGG)

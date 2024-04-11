@@ -167,4 +167,4 @@ class CalciDataset(VisionDataset):
 
             file_list.append(("dataset.pkl", self.get_md5(image_file)))
 
-        logging.info("list downloaded files ", file_list)
+        logging.info(f"list downloaded files {file_list}")
