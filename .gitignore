@@ -9,4 +9,4 @@ Calcimetry.egg-info
 data
 tests/calci-ds*
 mlruns/
-
+github.token

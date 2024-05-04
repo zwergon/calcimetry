@@ -7,9 +7,10 @@ pyyaml==6.0.1
 torch==2.2.2
 torchvision==0.17.2
 tqdm==4.66.2
---extra-index-url https://zwergon.github.io
 pymongo
 scipy
 flask
 gunicorn
+torchmetrics
 iapytoo
+--extra-index-url https://zwergon.github.io

@@ -26,9 +26,11 @@ class CalciDataset(VisionDataset):
     _pattern = re.compile(r"([\w+|\/]*)\/(\d+\.\d+)?")
 
     files_list = {
-        "1.0": [("dataset.pkl", "e614103141a608563f5a0c2a9aaf68f7")],
-        "1.1": [("dataset.pkl", "ec13f8aa1d7f76fb350635d229293178")],
-        "1.2": [("dataset.pkl", "4efa410fe3829d680ebb59b0a44a3694")],
+        "1.0": [("dataset.npz", "e614103141a608563f5a0c2a9aaf68f7")],
+        # "1.1": [("dataset.npz", "ec13f8aa1d7f76fb350635d229293178")],
+        "1.1": [("dataset.npz", "14af3214b8d31a122f9594902dacb1f9")],
+        # "1.2": [("dataset.npz", "4efa410fe3829d680ebb59b0a44a3694")],
+        "1.2": [("dataset.npz", "27ba58367726a80e6c094978d406fbd1")],
     }
 
     @staticmethod
@@ -67,16 +69,16 @@ class CalciDataset(VisionDataset):
 
         self.train = train  # training set or test set
 
-        data_file = os.path.join(self.root, "dataset.pkl")
-        with open(data_file, "rb") as f:
-            data = np.load(f)
-            targets = np.load(f)
+        data_file = os.path.join(self.root, "dataset.npz")
+        npzfile = np.load(data_file)
+        images = npzfile["images"]
+        targets = npzfile["targets"]
 
-        data = np.transpose(data, (3, 2, 1, 0))
+        images = np.transpose(images, (3, 2, 1, 0))
         targets = np.expand_dims(targets, axis=1)
 
         self.indices = self._random_split_indices(targets.shape[0])
-        self.data = data[self.indices] / 255.0
+        self.data = images[self.indices] / 255.0
         self.targets = targets[self.indices]
 
     def __getitem__(self, index: int) -> Tuple[Any, Any]:
@@ -160,11 +162,10 @@ class CalciDataset(VisionDataset):
                 images[:, :, :, i] = data
                 targets[i] = th.val_1m
 
-            image_file = os.path.join(folder, "dataset.pkl")
-            with open(image_file, "wb") as f:
-                np.save(f, images)
-                np.save(f, targets)
+            dct = {"images": images, "targets": targets}
+            image_file = os.path.join(folder, "dataset.npz")
+            np.save(image_file, **dct)
 
-            file_list.append(("dataset.pkl", self.get_md5(image_file)))
+            file_list.append(("dataset.npz", self.get_md5(image_file)))
 
         logging.info(f"list downloaded files {file_list}")
