@@ -30,7 +30,7 @@ class CalciDataset(VisionDataset):
         # "1.1": [("dataset.npz", "ec13f8aa1d7f76fb350635d229293178")],
         "1.1": [("dataset.npz", "14af3214b8d31a122f9594902dacb1f9")],
         # "1.2": [("dataset.npz", "4efa410fe3829d680ebb59b0a44a3694")],
-        "1.2": [("dataset.npz", "27ba58367726a80e6c094978d406fbd1")],
+        "1.2": [("dataset.npz", "62b289880ccab45ab9d142fcfbce6bad")],
     }
 
     @staticmethod
@@ -164,7 +164,7 @@ class CalciDataset(VisionDataset):
 
             dct = {"images": images, "targets": targets}
             image_file = os.path.join(folder, "dataset.npz")
-            np.save(image_file, **dct)
+            np.savez(image_file, **dct)
 
             file_list.append(("dataset.npz", self.get_md5(image_file)))
 
