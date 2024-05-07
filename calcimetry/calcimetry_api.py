@@ -7,7 +7,7 @@ API to read and write data from the MongoDB
 import io
 import re
 import gridfs
-from PIL import Image  
+from PIL import Image
 import pandas as pd
 
 from calcimetry.carrot_img import CarrotImage
@@ -17,19 +17,15 @@ from calcimetry.mongo_api import MongoAPI, MongoInfo
 from calcimetry.pipelines import image_selection_pipeline, min_max_criteria
 
 
-
 class CalcimetryAPI(MongoAPI):
 
-    IMG_COL = 'images'
-    JPG_COL = 'jpgs'
-    MES_COL = 'measurements'
-    QUA_COL = 'quality'
-    
+    IMG_COL = "images"
+    JPG_COL = "jpgs"
+    MES_COL = "measurements"
+    QUA_COL = "quality"
 
     def __init__(self, mongo_info=MongoInfo()):
         super().__init__(mongo_info)
-       
-       
 
     def read_image_info(self, image_id):
         """
@@ -37,11 +33,11 @@ class CalcimetryAPI(MongoAPI):
         :param image_id: Image ID
         :return: image information in a Python dict
         """
-        doc = self.db[self.IMG_COL].find_one({'ImageId': image_id })
-        if '_id' in doc:
-            del doc['_id']
+        doc = self.db[self.IMG_COL].find_one({"ImageId": image_id})
+        if "_id" in doc:
+            del doc["_id"]
         return dict(doc)
-    
+
     def read_image(self, image_id):
         """
         load a jpeg image from its imageid directly from mongo gridfs
@@ -54,18 +50,17 @@ class CalcimetryAPI(MongoAPI):
         if file is None:
             print(f"Jpg file {image_id} not found.")
             return None
-        jpg = Image.open(io.BytesIO(file.read())).convert('RGB')
-        
+        jpg = Image.open(io.BytesIO(file.read())).convert("RGB")
+
         infos = self.get_infos(image_id)
         measurements = self.get_measurements(image_id)
-       
-        return CarrotImage(jpg, infos = infos, measurements=measurements)
+
+        return CarrotImage(jpg, infos=infos, measurements=measurements)
 
     def read_vignette(self, image_id, center=None, dim=128):
         """return a PIL Image object with only the part of CarrotImage image_id from size dimxdim"""
         img = self.read_image(image_id)
         return img.vignette(dim, center)
-
 
     def get_images_df(self, query={}):
         """
@@ -81,35 +76,34 @@ class CalcimetryAPI(MongoAPI):
         cursor = self.db[self.IMG_COL].find(query)
 
         # Expand the cursor and construct the DataFrame
-        df =  pd.DataFrame(list(cursor))
-        if '_id' in df:
-            del df['_id']
+        df = pd.DataFrame(list(cursor))
+        if "_id" in df:
+            del df["_id"]
 
         return df
 
     def get_infos(self, image_id):
-        doc = self.db[self.IMG_COL].find_one({'ImageId': image_id })
+        doc = self.db[self.IMG_COL].find_one({"ImageId": image_id})
 
-       
         infos = {
-            "filename": doc['FileName'],
+            "filename": doc["FileName"],
             "image_id": image_id,
-            "px_extent": (doc['px0'], doc['px1']),
-            'w_extent': (doc['Cote0'], doc['Cote1']),
-            'k_up': Polyline(doc['k_Up']),
-            "k_arrow": Polyline(doc['k_Arrow']),
-            'k_down': Polyline(doc['k_Down'])
+            "px_extent": (doc["px0"], doc["px1"]),
+            "w_extent": (doc["Cote0"], doc["Cote1"]),
+            "k_up": Polyline(doc["k_Up"]),
+            "k_arrow": Polyline(doc["k_Arrow"]),
+            "k_down": Polyline(doc["k_Down"]),
         }
         return infos
 
     def get_drill_names(self):
-        return set(self.db['images'].distinct("DrillName"))
+        return set(self.db["images"].distinct("DrillName"))
 
     def get_drill_name_for_image(self, image_id):
         drill_list = []
-        docs = self.db[self.IMG_COL].find({'ImageId': image_id})
+        docs = self.db[self.IMG_COL].find({"ImageId": image_id})
         for doc in docs:
-            drill_list.append(doc['DrillName'])
+            drill_list.append(doc["DrillName"])
 
         return drill_list
 
@@ -118,26 +112,28 @@ class CalcimetryAPI(MongoAPI):
         This methods returns the list of "ImageId" that belong to this drillname
         """
         img_ids = []
-        docs = self.db[self.IMG_COL].find({'DrillName': drillname })
+        docs = self.db[self.IMG_COL].find({"DrillName": drillname})
         for doc in docs:
-            img_ids.append(doc['ImageId'])
-            
+            img_ids.append(doc["ImageId"])
+
         return img_ids
 
-    def get_filtered_images_id(self, drillnames: list = None,  
-                                  cotemin: float=None, 
-                                  cotemax: float=None, 
-                                  resomin: float=None, 
-                                  resomax: float=None,
-                                  yratmin: float=None, 
-                                  yratmax: float=None, 
-                                  nmesmin: int=None, 
-                                  nmesmax: int=None,
-                                  focmin: int=None,
-                                  focmax: int=None,
-                                  brimin: int=None,
-                                  brimax: int=None
-                               ):
+    def get_filtered_images_id(
+        self,
+        drillnames: list = None,
+        cotemin: float = None,
+        cotemax: float = None,
+        resomin: float = None,
+        resomax: float = None,
+        yratmin: float = None,
+        yratmax: float = None,
+        nmesmin: int = None,
+        nmesmax: int = None,
+        focmin: int = None,
+        focmax: int = None,
+        brimin: int = None,
+        brimax: int = None,
+    ):
         """
         This method return a list of "ImageId" that fit the following filter:
         - if all filters are None, return the whole ids for the image database
@@ -145,34 +141,46 @@ class CalcimetryAPI(MongoAPI):
         """
         img_ids = []
 
-        testNone = drillnames is None and cotemin is None and cotemax is None and resomin is None and \
-                   resomax is None and yratmin is None and yratmax is None and nmesmin is None and \
-                   nmesmax is None and focmin is None and focmax is None and brimin is None and brimax is None
+        testNone = (
+            drillnames is None
+            and cotemin is None
+            and cotemax is None
+            and resomin is None
+            and resomax is None
+            and yratmin is None
+            and yratmax is None
+            and nmesmin is None
+            and nmesmax is None
+            and focmin is None
+            and focmax is None
+            and brimin is None
+            and brimax is None
+        )
 
         # if no filter is given return the whole list of image ids.
-        if testNone: # drillnames is None and cotes_min_max is None:
-            #docs = self.db[self.IMG_COL].find({})
+        if testNone:  # drillnames is None and cotes_min_max is None:
+            # docs = self.db[self.IMG_COL].find({})
             return []
         else:
             docs = self.db[self.IMG_COL].aggregate(
-                    image_selection_pipeline(
-                        drills=drillnames,
-                        cotemin=cotemin,
-                        cotemax=cotemax,
-                        resomin=resomin,
-                        resomax=resomax,
-                        yratmin=yratmin,
-                        yratmax=yratmax,
-                        nmesmin=nmesmin,
-                        nmesmax=nmesmax,
-                        focmin=focmin,
-                        focmax=focmax,
-                        brimin=brimin,
-                        brimax=brimax
-                        #cotes_min_max=cotes_min_max
-                        )
+                image_selection_pipeline(
+                    drills=drillnames,
+                    cotemin=cotemin,
+                    cotemax=cotemax,
+                    resomin=resomin,
+                    resomax=resomax,
+                    yratmin=yratmin,
+                    yratmax=yratmax,
+                    nmesmin=nmesmin,
+                    nmesmax=nmesmax,
+                    focmin=focmin,
+                    focmax=focmax,
+                    brimin=brimin,
+                    brimax=brimax,
+                    # cotes_min_max=cotes_min_max
                 )
-        return [ d['ImageId'] for d in docs ]
+            )
+        return [d["ImageId"] for d in docs]
 
     def get_drill_list(self):
         drill_list = set()
@@ -190,17 +198,16 @@ class CalcimetryAPI(MongoAPI):
         docs = self.db[self.IMG_COL].aggregate(min_max_criteria())
         if docs is not None:
             result = dict(next(docs))
-            if '_id' in result:
-                del result['_id']
+            if "_id" in result:
+                del result["_id"]
             return result
         return None
 
-
     def get_drill_name_for_image(self, image_id):
         drill_list = []
-        docs = self.db[self.IMG_COL].find({'ImageId': image_id})
+        docs = self.db[self.IMG_COL].find({"ImageId": image_id})
         for doc in docs:
-            drill_list.append(doc['DrillName'])
+            drill_list.append(doc["DrillName"])
 
         return drill_list
 
@@ -223,8 +230,8 @@ class CalcimetryAPI(MongoAPI):
 
         # Expand the cursor and construct the DataFrame
         df = pd.DataFrame(list(cursor))
-        if '_id' in df:
-            del df['_id']
+        if "_id" in df:
+            del df["_id"]
 
         return df
 
@@ -234,18 +241,18 @@ class CalcimetryAPI(MongoAPI):
         for doc in docs:
             measurements.append(
                 Measurement(
-                    doc['ImageId'],
-                    doc['MeasureId'],
-                    doc['CalciCote'],
-                    doc['CalciVals1m'],
-                    doc['CalciVals15m'],
-                    doc['quality'])
-                    )
+                    doc["ImageId"],
+                    doc["MeasureId"],
+                    doc["CalciCote"],
+                    doc["CalciVals1m"],
+                    doc["CalciVals15m"],
+                    doc["quality"],
+                )
+            )
         return measurements
 
     def get_measurements(self, image_id):
-       return self.get_measurements_list(imageids=[image_id])
-
+        return self.get_measurements_list(imageids=[image_id])
 
     def get_measurement_from_id(self, measure_id):
         measurements = []
@@ -253,30 +260,28 @@ class CalcimetryAPI(MongoAPI):
         for doc in docs:
             measurements.append(
                 Measurement(
-                    doc['ImageId'],
-                    doc['MeasureId'],
-                    doc['CalciCote'],
-                    doc['CalciVals1m'],
-                    doc['CalciVals15m'],
-                    doc['quality'])
-                    )
+                    doc["ImageId"],
+                    doc["MeasureId"],
+                    doc["CalciCote"],
+                    doc["CalciVals1m"],
+                    doc["CalciVals15m"],
+                    doc["quality"],
+                )
+            )
         return measurements
-    
-   
+
     def get_all_measurements(self):
         measurements = []
         docs = self.db[self.MES_COL].find({})
         for doc in docs:
             measurements.append(
                 Measurement(
-                    doc['ImageId'],
-                    doc['MeasureId'],
-                    doc['CalciCote'],
-                    doc['CalciVals1m'],
-                    doc['CalciVals15m'],
-                    doc['quality'])
-                    )
+                    doc["ImageId"],
+                    doc["MeasureId"],
+                    doc["CalciCote"],
+                    doc["CalciVals1m"],
+                    doc["CalciVals15m"],
+                    doc["quality"],
+                )
+            )
         return measurements
-
-        
-   

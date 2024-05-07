@@ -57,7 +57,7 @@ def encode_image(filename):
     return base64.b64encode(data.getvalue()).decode("utf-8"), coords
 
 
-@app.route("/")
+@app.route("/calcipredict/")
 def index():
     if "filename" in session:
         image = DOWNLOADED_FILE
@@ -72,7 +72,7 @@ def index():
         calcimetries = session.get("calcimetries", [])
     else:
         calcimetries = []
-    print(calcimetries)
+    # print(calcimetries)
 
     return render_template(
         "index.html",
@@ -83,19 +83,17 @@ def index():
     )
 
 
-@app.route("/favicon.ico")
-def favico():
-    raise NotFound
-
-
-@app.route("/compute", methods=["POST"])
+@app.route("/calcipredict/compute", methods=["POST"])
 def compute():
 
     # ensures an image is selected
     if "filename" not in session:
-        return
+        return "no image selected"
 
     _, coords = encode_image(DOWNLOADED_FILE)
+    if len(coords) < 1:
+        return "no coords"
+
     calcimetries = compute_calcimetry(DOWNLOADED_FILEPATH, coords)
     session["compute"] = ComputeType.COMPUTED
     session["calcimetries"] = calcimetries
@@ -103,7 +101,7 @@ def compute():
     return "calcimetries computed"
 
 
-@app.route("/click", methods=["POST"])
+@app.route("/calcipredict/click", methods=["POST"])
 def click():
 
     coords = session.get("coords", [])
@@ -113,7 +111,6 @@ def click():
             session.pop("coords")
         if "compute" in session:
             session.pop("compute")
-        print("coords session cleared")
         return "coords session cleared"
 
     coords.append(coord)
@@ -122,12 +119,16 @@ def click():
     return "ok"
 
 
-@app.route("/upload", methods=["POST"])
+@app.route("/calcipredict/upload", methods=["POST"])
 def upload_file():
     uploaded_file = request.files["file"]
     if uploaded_file:
         uploaded_file.save(DOWNLOADED_FILEPATH)
         session["filename"] = uploaded_file.filename
+        if "coords" in session:
+            session.pop("coords")
+        if "compute" in session:
+            session.pop("compute")
         return "Fichier téléchargé"
     else:
         return "Aucun fichier téléchargé"

@@ -6,7 +6,7 @@ function handleClear(){
     formData.append('coords', "clear");
     
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', '/click', true);
+    xhr.open('POST', '/calcipredict/click', true);
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
             window.location.reload();
@@ -19,7 +19,7 @@ function handleClear(){
 function handleCompute(){
     
     var xhr = new XMLHttpRequest();
-    xhr.open('POST', '/compute', true);
+    xhr.open('POST', '/calcipredict/compute', true);
     xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
             window.location.reload();
@@ -44,7 +44,7 @@ function handleFile() {
   formData.append('file', file);
 
   var xhr = new XMLHttpRequest();
-  xhr.open('POST', '/upload', true);
+  xhr.open('POST', '/calcipredict/upload', true);
   xhr.onreadystatechange = function () {
       if (xhr.readyState === 4 && xhr.status === 200) {
           console.log('Fichier uploadé avec succès');
@@ -68,7 +68,7 @@ function onClickEvent(event){
   formData.append('coords', x + ';' + y);
   
   var xhr = new XMLHttpRequest();
-  xhr.open('POST', '/click', true);
+  xhr.open('POST', '/calcipredict/click', true);
   xhr.onreadystatechange = function () {
       if (xhr.readyState === 4 && xhr.status === 200) {
           window.location.reload();
