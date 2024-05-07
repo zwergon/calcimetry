@@ -1,18 +1,15 @@
+import os
 from pymongo import MongoClient
-from calcimetry.config import Config
+
 
 class MongoInfo:
 
     UNKNOWN_ID = int(-1)
 
+    def __init__(self, db_name="calcimetry"):
 
-    def __init__(self,
-                 config = Config(),
-                 db_name='calcimetry'
-                 ):
-        
-        self.host = config.MONGO_HOST
-        self.port = config.MONGO_PORT
+        self.host = os.environ.get("MONGO_HOST", "localhost")
+        self.port = os.environ.get("MONGO_PORT", 27017)
         self.db_name = db_name
 
     @property
@@ -37,19 +34,19 @@ class MongoAPI:
         self.client.close()
 
     def write_img_one(self, doc):
-        self.db['images'].insert_one(doc)
+        self.db["images"].insert_one(doc)
 
     def write_img_many(self, docs):
-        self.db['images'].insert_many(docs)
+        self.db["images"].insert_many(docs)
 
     def write_mesu_one(self, doc):
-        self.db['measurements'].insert_one(doc)
+        self.db["measurements"].insert_one(doc)
 
     def write_mesu_many(self, docs):
-        self.db['measurements'].insert_many(docs)
+        self.db["measurements"].insert_many(docs)
 
     def write_quality_one(self, doc):
-        self.db['quality'].insert_one(doc)
+        self.db["quality"].insert_one(doc)
 
     def write_quality_many(self, docs):
-        self.db['quality'].insert_many(docs)
+        self.db["quality"].insert_many(docs)
