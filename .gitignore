@@ -7,7 +7,8 @@ __pycache__
 .vscode
 Calcimetry.egg-info
 data
+dataset
 tests/calci-ds*
 mlruns/
 github.token
-infer/uploads/download.jpg
+infer/uploads/download.png
