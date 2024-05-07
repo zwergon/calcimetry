@@ -109,7 +109,8 @@ def click():
     coords = session.get("coords", [])
     coord = request.form.get("coords")
     if "clear" in coord:
-        session.pop("coords")
+        if "coords" in session:
+            session.pop("coords")
         if "compute" in session:
             session.pop("compute")
         print("coords session cleared")

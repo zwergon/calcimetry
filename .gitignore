@@ -5,7 +5,7 @@ venv
 __pycache__
 .idea
 .vscode
-Calcimetry.egg-info
+*.egg-info
 data
 dataset
 tests/calci-ds*
