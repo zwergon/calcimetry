@@ -13,7 +13,7 @@ RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /
 USER appuser
 
 # Clonage du dépôt GitHub
-RUN git clone --branch wip_ml_1 https://github.com/zwergon/calcimetry.git /app/calcimetry
+RUN git clone https://github.com/zwergon/calcimetry.git /app/calcimetry
 WORKDIR /app/calcimetry/infer
 
 # Keeps Python from generating .pyc files in the container
