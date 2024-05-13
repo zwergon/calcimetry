@@ -56,6 +56,13 @@ def encode_image(filename):
     img.save(data, "JPEG")
     return base64.b64encode(data.getvalue()).decode("utf-8"), coords
 
+def clean_session():
+    if "coords" in session:
+            session.pop("coords")
+    if "compute" in session:
+        session.pop("compute")
+
+    return "image_upload.png", "No file"
 
 @app.route("/calcipredict/")
 def index():
@@ -63,10 +70,16 @@ def index():
         image = DOWNLOADED_FILE
         filename = session["filename"]
     else:
-        image = "image_upload.png"
-        filename = "No file"
+        image, filename = clean_session()
 
-    img, coords = encode_image(image)
+    try:
+        img, coords = encode_image(image)
+    except FileNotFoundError as err:
+        if "filename" in session:
+            session.pop("filename")
+        image, filename = clean_session()
+        img, coords = encode_image(image)
+        
 
     if "compute" in session:
         calcimetries = session.get("calcimetries", [])
