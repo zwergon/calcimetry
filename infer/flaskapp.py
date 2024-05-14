@@ -3,7 +3,7 @@ import base64
 import os
 import json
 
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session, Blueprint
 from werkzeug.exceptions import NotFound
 from utils import compute_calcimetry
 
@@ -18,17 +18,17 @@ class ComputeType(IntEnum):
     COMPUTED = 2
 
 
-app = Flask(__name__, static_folder="assets")
-app.config["SECRET_KEY"] = "oh, my secret"
-app.config["UPLOAD_FOLDER"] = os.path.join(os.path.dirname(__file__), "uploads")
 
+app_bp = Blueprint('app', __name__, url_prefix='/calcipredict', static_url_path='/%s' % __name__)
+
+UPLOAD_FOLDER=os.path.join(os.path.dirname(__file__), "uploads")
 DOWNLOADED_FILE = "download.png"
-DOWNLOADED_FILEPATH = os.path.join(app.config["UPLOAD_FOLDER"], DOWNLOADED_FILE)
+DOWNLOADED_FILEPATH = os.path.join(UPLOAD_FOLDER, DOWNLOADED_FILE)
 
 
 def encode_image(filename):
 
-    img = Image.open(os.path.join(app.config["UPLOAD_FOLDER"], filename)).convert("RGB")
+    img = Image.open(os.path.join(UPLOAD_FOLDER, filename)).convert("RGB")
 
     coords = []
 
@@ -64,7 +64,7 @@ def clean_session():
 
     return "image_upload.png", "No file"
 
-@app.route("/calcipredict/")
+@app_bp.route("/")
 def index():
     if "filename" in session:
         image = DOWNLOADED_FILE
@@ -96,7 +96,7 @@ def index():
     )
 
 
-@app.route("/calcipredict/compute", methods=["POST"])
+@app_bp.route("/compute", methods=["POST"])
 def compute():
 
     # ensures an image is selected
@@ -114,7 +114,7 @@ def compute():
     return "calcimetries computed"
 
 
-@app.route("/calcipredict/click", methods=["POST"])
+@app_bp.route("/click", methods=["POST"])
 def click():
 
     coords = session.get("coords", [])
@@ -132,7 +132,7 @@ def click():
     return "ok"
 
 
-@app.route("/calcipredict/upload", methods=["POST"])
+@app_bp.route("/upload", methods=["POST"])
 def upload_file():
     uploaded_file = request.files["file"]
     if uploaded_file:
@@ -146,6 +146,11 @@ def upload_file():
     else:
         return "Aucun fichier téléchargé"
 
+
+app = Flask(__name__)
+app.register_blueprint(app_bp)
+app.config["SECRET_KEY"] = "oh, my secret"
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

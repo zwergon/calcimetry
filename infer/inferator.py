@@ -44,7 +44,7 @@ class Inferfator:
 class DeepInferator(Inferfator):
 
     THUMBNAIL_SIZE = 48
-    MODEL_PATH = os.path.join(os.path.dirname(__file__), "assets/models/deep")
+    MODEL_PATH = os.path.join(os.path.dirname(__file__), "static/models/deep")
 
     def __init__(self, filename: str, coords: list) -> None:
         super().__init__(
@@ -83,7 +83,7 @@ class MLInferator(Inferfator):
     THUMBNAIL_SIZE = 64
     NBINS = 6
     MODEL_PATH = os.path.join(
-        os.path.dirname(__file__), "assets/models/ml/random_forest.joblib"
+        os.path.dirname(__file__), "static/models/ml/random_forest.joblib"
     )
 
     stats = {
