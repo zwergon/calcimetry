@@ -3,7 +3,7 @@ import base64
 import os
 import json
 
-from flask import Flask, render_template, request, redirect, session, Blueprint
+from flask import Flask, render_template, request, send_file, session, Blueprint
 from werkzeug.exceptions import NotFound
 from utils import compute_calcimetry
 
@@ -130,6 +130,11 @@ def click():
     session["coords"] = coords
 
     return "ok"
+
+@app_bp.route("/static-js", methods=['GET'])
+def static_js():
+    filename = os.path.join(os.path.dirname(__file__), "static/js/calci.js")
+    return send_file(filename)
 
 
 @app_bp.route("/upload", methods=["POST"])
